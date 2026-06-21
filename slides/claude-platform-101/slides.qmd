@@ -32,7 +32,8 @@ title-slide-attributes:
 - **Agent loop**, **tool use**, **thinking** e ferramentas
 - **Skills**, **MCP** e gerenciamento de contexto
 - **Managed agents** e **Routines** — o agente que trabalha sozinho
-- Fechamos o **Boletim Focus**: do GitHub à Routine (Passos 12–15)
+- O **Boletim Focus** de duas formas: resumo **via API** (você hospeda) e
+  **via Routine** (Anthropic hospeda)
 :::
 ::: {.column width="42%"}
 ![](../assets/illus-network.svg)
@@ -74,25 +75,34 @@ A API key é como uma senha: **nunca** vai para o GitHub. Use variáveis de ambi
 (local) e **Secrets** (na nuvem) — exatamente o que faremos na Routine.
 :::
 
-## Sua primeira chamada de API {.smaller}
+## Primeira chamada: `resumir_focus.py` {.smaller}
+
+O **mesmo resumo da Routine**, mas feito por código que **você** roda:
 
 ```python
-import anthropic
+import anthropic, pathlib
 
-client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
+texto = pathlib.Path("data/focus_2026-06-15.txt").read_text(encoding="utf-8")
+client = anthropic.Anthropic()              # lê ANTHROPIC_API_KEY do ambiente
 
 msg = client.messages.create(
     model="claude-sonnet-4-6",
-    max_tokens=400,
-    messages=[
-        {"role": "user",
-         "content": "Resuma em 3 bullets as mensagens do COPOM sobre a Selic."}
-    ],
+    max_tokens=600,
+    system="Você resume o Boletim Focus. NUNCA invente número: "
+           "toda mediana citada deve estar no texto.",
+    messages=[{"role": "user",
+               "content": f"Resuma em até 200 palavras, com IPCA, Selic, "
+                          f"PIB e câmbio e as 3 maiores revisões:\n\n{texto}"}],
 )
 print(msg.content[0].text)
 ```
 
-- `messages` é a conversa; `model` escolhe o modelo; `max_tokens` limita a resposta
+- `system` carrega a **regra do projeto**; `model` escolhe o modelo; `messages` é a conversa
+
+::: {.callout-note}
+Script completo e rodável (com a variante de *tool use*):
+`cursos/claude-platform-101/exemplos/resumir_focus.py`
+:::
 
 ## Escolhendo o modelo certo {.smaller}
 
@@ -127,10 +137,10 @@ A Routine do Focus é esse loop: ler o `.txt` → conferir os números → redig
 montar o HTML → publicar.
 :::
 
-## O que é tool use {.smaller}
+## Tool use — garantindo o número certo {.smaller}
 
-- **Tool use**: você descreve ferramentas e o Claude decide **quando chamá-las**
-- Ele devolve "quero chamar a ferramenta X com estes argumentos"; seu código executa
+No `resumir_focus.py`, em vez de o modelo "lembrar" a mediana, ele **chama uma ferramenta**
+que lê o número exato dos dados:
 
 ```python
 tools = [{
@@ -142,9 +152,11 @@ tools = [{
     "required": ["indicador"]
   }
 }]
+# ... passe tools=tools no client.messages.create(...)
 ```
 
-- Assim o Claude **busca o número real** em vez de inventar
+- O Claude pede `mediana_focus("IPCA")`; **seu código** devolve o valor real
+- É a regra **"nunca invente número"** virando mecanismo, não só instrução
 
 ## O que é thinking
 
@@ -217,17 +229,31 @@ A Routine lê **apenas o boletim da semana** — contexto enxuto, resposta focad
 
 # 🤖 Managed agents e Routines {background-color="#1c2d4f"}
 
+## Dois caminhos para o mesmo resumo {.smaller}
+
+| Aspecto | Via API — resumir_focus.py | Via Routine |
+|---|---|---|
+| Quem hospeda | **você** (sua máquina / um Action) | **a Anthropic** (na nuvem) |
+| Como | código com o **SDK** | **/schedule**, sem código |
+| Modelo | escolhido no código | escolhido na configuração |
+| Ferramentas | **tool use** no código | **MCP** (GitHub, etc.) |
+| Quando usar | controle total, integrar num pipeline | agendar sem manter servidor |
+
+. . .
+
+➡️ A **Routine é o caminho de _managed agent_** — é exatamente aqui que ela entra.
+
 ## O que são managed agents
 
 - Agentes que rodam na **infraestrutura da Anthropic** — você não hospeda servidor
 - Recebem um objetivo, usam ferramentas (via MCP) e entregam o resultado
-- Uma **Routine** é um managed agent **agendado** (roda sozinho no horário)
+- **A Routine do Focus é um managed agent agendado**: roda sozinha no horário
 
 . . .
 
 ::: {.callout-tip}
-É o pulo do gato: sai do "rodo na minha máquina" (Passos 1–11, no Code 101) para
-"**roda na nuvem, no horário, sem mim**" (Passos 12–15, aqui).
+O pulo do gato: do "rodo na minha máquina" (a chamada de API que **você** dispara) para
+"**roda na nuvem, no horário, sem mim**" — o managed agent.
 :::
 
 ## O fluxo do Focus, ponta a ponta {.smaller}
@@ -334,6 +360,8 @@ Mesma base, três formas: **chat** (Claude 101), **agente no terminal** (Code 10
 ## Mensagens-chave
 
 - A **plataforma** é o Claude **programável**: API, ferramentas e agentes
+- O resumo, **dois caminhos**: **API** (você roda `resumir_focus.py`) ou
+  **Routine** (managed agent, na nuvem)
 - O **agent loop** + **tool use** + **MCP** dão **ações** ao modelo
 - **Managed agents / Routines** fazem o trabalho **rodar sozinho na nuvem**
 - Separe **determinístico** (scripts) de **interpretação** (LLM)
