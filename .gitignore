@@ -6,5 +6,6 @@ _site/
 # macOS
 .DS_Store
 
-# Os slides .html são autossuficientes (embed-resources) e VÃO para o GitHub Pages,
-# por isso NÃO são ignorados.
+# Os slides .html são GERADOS pelo Quarto no GitHub Action (publish.yml) e publicados
+# no Pages — não precisam ser versionados. O index.html (escrito à mão) é versionado.
+slides/*/slides.html
