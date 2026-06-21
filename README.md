@@ -15,7 +15,7 @@ em [SKILLS.md](SKILLS.md); briefing do projeto em [CLAUDE.md](CLAUDE.md).
 |---|---|---|---|
 | **Claude 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-101/slides.html) | [`slides/claude-101/`](slides/claude-101/) |
 | **Claude Code 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-code-101/slides.html) | [`slides/claude-code-101/`](slides/claude-code-101/) |
-| **Claude Platform 101** | 🚧 Em revisão | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-platform-101/slides.html) | [`slides/claude-platform-101/`](slides/claude-platform-101/) |
+| **Claude Platform 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-platform-101/slides.html) | [`slides/claude-platform-101/`](slides/claude-platform-101/) |
 
 > Dica de navegação no reveal.js: **setas** ← → para avançar, **F** tela cheia,
 > **S** modo apresentador (com as notas), **O** visão geral.
@@ -42,7 +42,7 @@ Cursos já transformados em slides e os **previstos** (roadmap), seguindo o cat�
 |---|---|---|
 | 1 | Claude 101 | ✅ Slides prontos |
 | 2 | Claude Code 101 | ✅ Slides prontos |
-| 3 | Claude Platform 101 | 🚧 Slides em revisão |
+| 3 | Claude Platform 101 | ✅ Slides prontos |
 | 4 | Introduction to Model Context Protocol | 🔜 Previsto |
 | 5 | Model Context Protocol: Advanced Topics | 🔜 Previsto |
 | 6 | Building with the Claude API | 🔜 Previsto |

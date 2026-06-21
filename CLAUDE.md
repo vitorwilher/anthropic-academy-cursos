@@ -47,4 +47,4 @@ quarto preview slides/claude-code-101/slides.qmd    # com hot-reload
 
 - Claude 101 — ✅ slides prontos
 - Claude Code 101 — ✅ slides prontos
-- Claude Platform 101 — 🚧 slides prontos, revisão em andamento
+- Claude Platform 101 — ✅ slides prontos

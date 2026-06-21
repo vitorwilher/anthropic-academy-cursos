@@ -1,6 +1,6 @@
 # Claude Platform 101 — Anthropic Academy
 
-**Status:** 🚧 Em andamento
+**Status:** ✅ Concluído
 
 Curso sobre a Claude Developer Platform: API, modelos, agent loop, tool use, MCP,
 managed agents e construção com o Claude Code.
