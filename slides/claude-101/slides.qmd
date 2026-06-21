@@ -1,0 +1,303 @@
+---
+title: "Claude 101"
+subtitle: "Usando o Claude no trabalho de economia e finanças"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- O que é o Claude e como conversar com ele
+- Como obter melhores respostas (prompting)
+- Organizar trabalho com **Projects**, **Artifacts** e **Skills**
+- Ampliar o alcance: ferramentas, busca corporativa, modo pesquisa
+- Casos de uso reais em **economia e finanças**
+:::
+::: {.column width="42%"}
+![](../assets/illus-linechart.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso Claude 101 da Anthropic Academy, com exemplos voltados ao
+público da Análise Macro (economistas, analistas, profissionais de finanças).
+:::
+
+# 💬 Conhecendo o Claude {background-color="#1c2d4f"}
+
+## O que é o Claude
+
+:::: {.columns}
+::: {.column width="58%"}
+- Assistente de IA da **Anthropic**, baseado em grandes modelos de linguagem (LLMs)
+- Conversa em linguagem natural: você descreve a tarefa, ele responde
+- Treinado para ser **útil, honesto e seguro** (*Constitutional AI*)
+- Famílias: **Opus** (mais capaz), **Sonnet** (equilíbrio), **Haiku** (rápido)
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia para economistas
+Pense no Claude como um **assistente de pesquisa sênior**: lê relatórios, resume atas,
+escreve código, monta tabelas — mas você continua responsável pela revisão.
+:::
+
+## Sua primeira conversa
+
+- Acesse via **claude.ai**, app desktop ou celular
+- Escreva como falaria com um colega — sem "linguagem de máquina"
+- Pode anexar arquivos: PDFs, planilhas, imagens, CSVs
+
+. . .
+
+**Exemplo (finanças):**
+
+> "Anexei o último Relatório de Inflação do Banco Central. Resuma em 5 pontos as
+> principais mensagens sobre a trajetória da Selic."
+
+## Obtendo melhores resultados {.smaller}
+
+Quatro alavancas de um bom prompt:
+
+1. **Contexto** — quem você é e qual o objetivo
+2. **Tarefa específica** — o que exatamente quer
+3. **Formato** — tabela, bullets, código, tom
+4. **Exemplos** — mostre o resultado esperado (*few-shot*)
+
+. . .
+
+::: {.callout-note}
+## Antes → Depois
+**Fraco:** "Analise essa série."
+
+**Forte:** "Você é um economista. Anexei o IPCA mensal (2010–2025). Calcule a média
+móvel de 12 meses, identifique os 3 maiores picos e explique o contexto macro de cada um.
+Responda em uma tabela + parágrafo de síntese."
+:::
+
+## Iterar é parte do processo
+
+- Raramente o primeiro prompt é o ideal — **refine**
+- Peça ajustes: "encurte", "use tom formal", "adicione uma coluna com a variação %"
+- Aponte erros: o Claude corrige no contexto da conversa
+
+. . .
+
+> "Refaça a tabela acrescentando a meta de inflação de cada ano e a diferença
+> em relação ao IPCA realizado."
+
+## App desktop: Chat, Cowork e Code
+
+- **Chat** — conversa tradicional, anexos, pesquisa
+- **Cowork** — Claude atua sobre seus arquivos e tarefas de forma mais autônoma
+- **Code** — o **Claude Code**, agente no terminal para projetos de código
+
+::: {.callout-tip}
+Para um analista quant: *Chat* para explorar ideias, *Cowork* para montar um relatório
+com vários arquivos, *Code* para automatizar a coleta e o tratamento de dados.
+:::
+
+# 🗂️ Organizando trabalho e conhecimento {background-color="#1c2d4f"}
+
+## Projects
+
+- **Projects** agrupam conversas + arquivos + instruções em torno de um tema
+- Conhecimento compartilhado: tudo no projeto "enxerga" os mesmos documentos
+- Instruções personalizadas definem o comportamento padrão ali dentro
+
+. . .
+
+**Exemplo:** um projeto *"Boletim Focus semanal"* com:
+
+- Arquivos: séries históricas, template do relatório
+- Instrução: "Sempre escreva em pt-BR, tom técnico, com gráficos descritos em texto"
+
+## Artifacts
+
+- **Artifacts** são saídas estruturadas e editáveis: documentos, código, tabelas, apps
+- Aparecem num painel ao lado, versionáveis e reaproveitáveis
+- Ideais para entregáveis que evoluem ao longo da conversa
+
+. . .
+
+**Exemplo (finanças):**
+
+> "Crie um artifact com uma calculadora de **valor presente líquido (VPL)** que receba
+> fluxo de caixa e taxa de desconto."
+
+## Skills
+
+- **Skills** empacotam instruções + recursos para tarefas recorrentes
+- O Claude aciona a skill certa conforme o pedido
+- Padronizam qualidade: a mesma tarefa sai sempre no mesmo padrão
+
+. . .
+
+::: {.callout-note}
+**Exemplo:** uma skill *"Análise de balanço"* que, dado um DRE, sempre calcula margens,
+ROE, alavancagem e devolve um parecer no formato padrão da sua mesa.
+:::
+
+# 🔌 Ampliando o alcance do Claude {background-color="#1c2d4f"}
+
+## Conectando suas ferramentas
+
+:::: {.columns}
+::: {.column width="58%"}
+- Integrações (incl. **MCP**) ligam o Claude a sistemas externos
+- Acesso a dados ao vivo, planilhas, bases internas, APIs
+- Menos copiar-e-colar, mais fluxo de trabalho conectado
+
+. . .
+
+**Exemplo:** conectar uma base de cotações para o Claude puxar o fechamento do dia
+e atualizar sua planilha de carteira.
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+## Enterprise search
+
+- Busca corporativa: o Claude pesquisa na **base de conhecimento da sua organização**
+- Respostas fundamentadas em documentos internos (com citação da fonte)
+- Útil para times: políticas, relatórios, metodologias
+
+. . .
+
+> "Qual é a metodologia oficial da casa para projetar o PIB trimestral? Cite o documento."
+
+## Research mode
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Modo pesquisa** para investigações profundas e multi-fontes
+- O Claude planeja, busca, cruza fontes e entrega um relatório com referências
+- Bom para *desk research* e revisões de literatura
+
+. . .
+
+**Exemplo:** "Levante as estimativas de mercado para a inflação dos EUA em 2026,
+comparando bancos e organismos multilaterais, com fontes."
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+# 🧩 Juntando tudo {background-color="#1c2d4f"}
+
+## Casos de uso por função {.smaller}
+
+| Função | Exemplo com Claude |
+|---|---|
+| Economista | Resumir atas do COPOM/Fed; comparar cenários |
+| Analista quant | Escrever/depurar código de séries temporais |
+| Risco | Sintetizar exposições; redigir notas de risco |
+| Gestor/RI | Rascunhar carta mensal ao investidor |
+| Professor | Criar exercícios e explicar conceitos |
+
+## Outras formas de trabalhar com o Claude
+
+- **API** e **Claude Platform** — automatizar tarefas em escala (curso Platform 101)
+- **Claude Code** — agente para projetos de código (curso Code 101)
+- Apps móveis e integrações no seu fluxo diário
+
+. . .
+
+::: {.callout-tip}
+Comece pelo Chat para ganhar intuição; migre para Projects quando o trabalho virar
+recorrente; vá para API/Code quando precisar de **automação e escala**.
+:::
+
+# 📊 Projeto guia: o Boletim Focus {background-color="#1c2d4f"}
+
+## Um projeto que conecta os três cursos
+
+:::: {.columns}
+::: {.column width="58%"}
+Ao longo dos cursos vamos construir **um agente que resume o Boletim Focus** do
+Banco Central e **envia por e-mail toda segunda, sozinho**.
+
+- **Claude 101** (aqui) — o *conceito*: como o Claude ajuda a pensar e redigir
+- **Claude Code 101** — *construir* o projeto ao vivo no VS Code
+- **Claude Platform 101** — *automatizar* na nuvem com uma **Routine**
+:::
+::: {.column width="42%"}
+![](../assets/illus-linechart.svg)
+:::
+::::
+
+::: {.callout-tip}
+O Focus traz as **medianas de mercado** para IPCA, Selic, PIB e câmbio. O agente lê o
+boletim e escreve um resumo executivo — o tipo de tarefa repetitiva que o Claude tira do
+seu colo.
+:::
+
+## O que o Claude faz aqui (no nível do produto)
+
+- **Planejar**: descrever o objetivo e deixar o Claude propor as etapas
+- **Pesquisar**: entender a fonte (página e PDF do Focus no site do BCB)
+- **Redigir**: transformar o texto do boletim num **resumo executivo** claro
+- **Entregar**: gerar um **artifact** (HTML) e usar **conectores** (rascunho no Gmail)
+
+. . .
+
+> "Resuma este boletim Focus em até 200 palavras, com as medianas de IPCA, Selic, PIB e
+> câmbio e as 3 principais revisões da semana."
+
+## Princípio: nunca invente número
+
+- Em economia, um número errado destrói a credibilidade do relatório
+- Regra que guia o agente: **toda mediana citada deve estar no texto** do boletim
+- *Sanity check*: conferir se IPCA/Selic/PIB fazem sentido antes de publicar
+- Liga-se a "obter melhores resultados": **instruções claras + verificação**
+
+::: {.callout-note}
+Esse princípio vira uma **regra escrita** que acompanha o agente nos próximos cursos —
+no `CLAUDE.md` (Code 101) e no roteiro da Routine (Platform 101).
+:::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Trate o Claude como um **assistente de pesquisa**: contexto + tarefa + formato + exemplos
+- **Itere**: o primeiro prompt é um rascunho
+- Organize com **Projects, Artifacts e Skills**
+- Amplie com **ferramentas, busca e pesquisa**
+- Para escala, o caminho é **API / Claude Code**
+
+## Próximos passos
+
+- Praticar com um caso real da rotina (ex.: resumir a ata do COPOM)
+- Montar um **Project** para um entregável recorrente
+- Avançar para **Claude Code 101** e **Claude Platform 101**
+
+. . .
+
+**Obrigado!** — Análise Macro

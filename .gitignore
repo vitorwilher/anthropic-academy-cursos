@@ -1,0 +1,10 @@
+# Artefatos de build do Quarto
+/.quarto/
+*_files/
+_site/
+
+# macOS
+.DS_Store
+
+# Os slides .html são autossuficientes (embed-resources) e VÃO para o GitHub Pages,
+# por isso NÃO são ignorados.

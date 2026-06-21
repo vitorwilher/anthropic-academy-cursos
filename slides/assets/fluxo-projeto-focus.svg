@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 600" font-family="'Inter','Segoe UI',Helvetica,Arial,sans-serif" role="img" aria-label="Sequência do projeto Boletim Focus">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- ===== FASE 1 ===== -->
+  <g>
+    <rect x="30" y="40" width="340" height="200" rx="16" fill="#f3f7fb" stroke="#c4d3e2" stroke-width="2"/>
+    <path d="M30 56 a16 16 0 0 1 16 -16 h308 a16 16 0 0 1 16 16 v40 h-340 z" fill="#1c2d4f"/>
+    <text x="50" y="68" fill="#56c2ec" font-size="13" font-weight="700" letter-spacing="1.5">PASSOS 1–11 · CLAUDE CODE 101</text>
+    <text x="50" y="88" fill="#ffffff" font-size="23" font-weight="800">1 · Construir</text>
+    <text x="50" y="130" fill="#16233d" font-size="16" font-weight="700">Na sua máquina, com o Claude Code:</text>
+    <text x="50" y="158" fill="#34465f" font-size="15">• baixar o Focus (PDF do BCB)</text>
+    <text x="50" y="182" fill="#34465f" font-size="15">• extrair o texto e testar</text>
+    <text x="50" y="206" fill="#34465f" font-size="15">• escrever o roteiro do agente</text>
+    <text x="50" y="230" fill="#34465f" font-size="15">  (CLAUDE.md + routine-prompt)</text>
+  </g>
+
+  <!-- ===== FASE 2 ===== -->
+  <g>
+    <rect x="420" y="40" width="340" height="200" rx="16" fill="#f3f7fb" stroke="#c4d3e2" stroke-width="2"/>
+    <path d="M420 56 a16 16 0 0 1 16 -16 h308 a16 16 0 0 1 16 16 v40 h-340 z" fill="#1c2d4f"/>
+    <text x="440" y="68" fill="#56c2ec" font-size="13" font-weight="700" letter-spacing="1.5">PASSO 12 · PLATFORM 101</text>
+    <text x="440" y="88" fill="#ffffff" font-size="23" font-weight="800">2 · Publicar</text>
+    <text x="440" y="130" fill="#16233d" font-size="16" font-weight="700">Subir o projeto para a nuvem:</text>
+    <text x="440" y="158" fill="#34465f" font-size="15">• criar o repositório no GitHub</text>
+    <text x="440" y="182" fill="#34465f" font-size="15">• o Claude faz isso por você</text>
+    <text x="440" y="206" fill="#34465f" font-size="15">  (git + gh, em um prompt)</text>
+  </g>
+
+  <!-- ===== FASE 3 ===== -->
+  <g>
+    <rect x="810" y="40" width="340" height="200" rx="16" fill="#f3f7fb" stroke="#c4d3e2" stroke-width="2"/>
+    <path d="M810 56 a16 16 0 0 1 16 -16 h308 a16 16 0 0 1 16 16 v40 h-340 z" fill="#1c2d4f"/>
+    <text x="830" y="68" fill="#56c2ec" font-size="13" font-weight="700" letter-spacing="1.5">PASSOS 13–15 · PLATFORM 101</text>
+    <text x="830" y="88" fill="#ffffff" font-size="23" font-weight="800">3 · Automatizar</text>
+    <text x="830" y="130" fill="#16233d" font-size="16" font-weight="700">Fazer rodar sozinho:</text>
+    <text x="830" y="158" fill="#34465f" font-size="15">• guardar as senhas (Secrets)</text>
+    <text x="830" y="182" fill="#34465f" font-size="15">• conectar o GitHub ao Claude</text>
+    <text x="830" y="206" fill="#34465f" font-size="15">• criar a Routine (/schedule)</text>
+  </g>
+
+  <!-- setas entre fases -->
+  <line x1="376" y1="140" x2="414" y2="140" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="766" y1="140" x2="804" y2="140" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- seta para baixo + título do resultado -->
+  <line x1="590" y1="250" x2="590" y2="300" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+  <text x="590" y="332" text-anchor="middle" fill="#1c2d4f" font-size="20" font-weight="800">O resultado: toda segunda, sozinho</text>
+
+  <!-- ===== FLUXO SEMANAL ===== -->
+  <g>
+    <rect x="30" y="400" width="250" height="74" rx="12" fill="#18a0d7"/>
+    <text x="155" y="438" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="700">Baixa o Focus</text>
+    <text x="155" y="494" text-anchor="middle" fill="#5b6b82" font-size="14">segunda, 9h15</text>
+
+    <rect x="320" y="400" width="250" height="74" rx="12" fill="#f5a623"/>
+    <text x="445" y="438" text-anchor="middle" fill="#1c2d4f" font-size="18" font-weight="800">Claude resume</text>
+    <text x="445" y="494" text-anchor="middle" fill="#5b6b82" font-size="14">segunda, 10h</text>
+
+    <rect x="610" y="400" width="250" height="74" rx="12" fill="#27ae60"/>
+    <text x="735" y="438" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="700">Envia o e-mail</text>
+    <text x="735" y="494" text-anchor="middle" fill="#5b6b82" font-size="14">automático</text>
+
+    <rect x="900" y="400" width="250" height="74" rx="12" fill="#1c2d4f"/>
+    <text x="1025" y="438" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="700">Time recebe</text>
+    <text x="1025" y="494" text-anchor="middle" fill="#5b6b82" font-size="14">sem nenhum clique</text>
+
+    <line x1="286" y1="437" x2="314" y2="437" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+    <line x1="576" y1="437" x2="604" y2="437" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+    <line x1="866" y1="437" x2="894" y2="437" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr)"/>
+  </g>
+</svg>

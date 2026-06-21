@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursos Anthropic Academy — Análise Macro</title>
+<style>
+  :root { --navy:#1c2d4f; --blue:#18a0d7; --soft:#f3f7fb; --ink:#16233d; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Inter","Segoe UI",Helvetica,Arial,sans-serif;
+         color:var(--ink); background:var(--soft); line-height:1.5; }
+  header { background:var(--navy); color:#fff; padding:3rem 1.5rem 2.5rem; text-align:center; }
+  header img { height:64px; margin-bottom:1rem; filter:brightness(0) invert(1); }
+  header h1 { margin:.2rem 0; font-size:2rem; }
+  header p { margin:.3rem auto 0; max-width:640px; color:#cfe0ef; }
+  main { max-width:980px; margin:-1.6rem auto 3rem; padding:0 1.2rem; }
+  .grid { display:grid; gap:1.1rem; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+  .card { background:#fff; border:1px solid #dbe6f0; border-radius:14px; padding:1.3rem 1.4rem;
+          text-decoration:none; color:inherit; display:flex; flex-direction:column;
+          box-shadow:0 1px 3px rgba(28,45,79,.06); transition:transform .12s, box-shadow .12s; }
+  .card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(28,45,79,.12); }
+  .tag { font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); }
+  .card h2 { margin:.4rem 0 .3rem; font-size:1.25rem; color:var(--navy); }
+  .card p { margin:0; font-size:.92rem; color:#475569; flex:1; }
+  .card .open { margin-top:.9rem; font-weight:700; color:var(--blue); }
+  .status { font-size:.78rem; color:#64748b; margin-top:.4rem; }
+  footer { text-align:center; color:#64748b; font-size:.85rem; padding:0 1rem 2.5rem; }
+  footer a { color:var(--blue); }
+</style>
+</head>
+<body>
+  <header>
+    <img src="slides/assets/logo-am.png" alt="Análise Macro">
+    <h1>Cursos da Anthropic Academy</h1>
+    <p>Slides em português, com exemplos de economia e finanças — material da Análise Macro.</p>
+  </header>
+  <main>
+    <div class="grid">
+      <a class="card" href="slides/claude-101/slides.html">
+        <span class="tag">Trilha 1</span>
+        <h2>Claude 101</h2>
+        <p>O que é o Claude, prompting, Projects, Artifacts e como usá-lo no trabalho.</p>
+        <div class="status">✅ Pronto</div>
+        <div class="open">Abrir slides →</div>
+      </a>
+      <a class="card" href="slides/claude-code-101/slides.html">
+        <span class="tag">Trilha 2</span>
+        <h2>Claude Code 101</h2>
+        <p>O agente no terminal: instalação, fluxo de trabalho e o projeto Boletim Focus ao vivo.</p>
+        <div class="status">✅ Pronto</div>
+        <div class="open">Abrir slides →</div>
+      </a>
+      <a class="card" href="slides/claude-platform-101/slides.html">
+        <span class="tag">Trilha 3</span>
+        <h2>Claude Platform 101</h2>
+        <p>Da API às Routines: automatizar o Boletim Focus na nuvem, toda segunda.</p>
+        <div class="status">🚧 Em revisão</div>
+        <div class="open">Abrir slides →</div>
+      </a>
+    </div>
+  </main>
+  <footer>
+    Feito por Vitor Wilher · <a href="https://analisemacro.com.br/">Análise Macro</a> ·
+    <a href="https://github.com/vitorwilher/anthropic-academy-cursos">Repositório no GitHub</a>
+  </footer>
+</body>
+</html>
