@@ -243,6 +243,34 @@ A Routine lê **apenas o boletim da semana** — contexto enxuto, resposta focad
 
 ➡️ A **Routine é o caminho de _managed agent_** — é exatamente aqui que ela entra.
 
+## Posso usar os dois? {.smaller}
+
+Sim — **se cada um tiver um papel**. Os dois agendados entregando = duplicação:
+
+:::: {.columns}
+::: {.column width="50%"}
+**⚠️ O problema (os dois em produção)**
+
+- **e-mail dobrado** (dois pushes disparam o envio)
+- **custo dobrado** (duas chamadas de modelo)
+- regra "nunca invente número" em **dois lugares** → desencontra
+- qual dos dois gerou? Mais para manter
+:::
+::: {.column width="50%"}
+**✅ O bom uso (papéis distintos)**
+
+- **Routine** → entrega **agendada** de produção
+- **Script** → dev, teste e execução **sob demanda**
+- ou: **script + Action seu** (tudo no seu controle) e **dispensa a Routine**
+:::
+::::
+
+. . .
+
+::: {.callout-tip}
+Pergunta-chave: **quem hospeda o agente?** Para produção, **escolha um** entregador.
+:::
+
 ## O que são managed agents
 
 - Agentes que rodam na **infraestrutura da Anthropic** — você não hospeda servidor
