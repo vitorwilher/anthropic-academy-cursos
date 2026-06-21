@@ -6,6 +6,10 @@ _site/
 # macOS
 .DS_Store
 
+# Python
+__pycache__/
+*.pyc
+
 # Os slides .html são GERADOS pelo Quarto no GitHub Action (publish.yml) e publicados
 # no Pages — não precisam ser versionados. O index.html (escrito à mão) é versionado.
 slides/*/slides.html
