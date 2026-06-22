@@ -1,0 +1,601 @@
+---
+title: "Projeto: Sentimento COPOM"
+subtitle: "Construindo, com o Claude Code, um Índice de Tom das atas do Copom com múltiplos LLMs"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../../slides/theme-am.scss]
+    logo: ../../slides/assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../../slides/assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Abertura {background-color="#1c2d4f"}
+
+## Aula-projeto de 2 horas
+
+:::: {.columns}
+::: {.column width="58%"}
+Hoje vamos **reconstruir, do zero e com o Claude Code**, um projeto real de pesquisa
+aplicada: um **Índice de Tom das atas do Copom** calibrado em pontos da Selic, usando
+**três LLMs em paralelo** (Gemini, Claude e GPT).
+
+É o passo seguinte ao Boletim Focus: saímos do "automatizar uma tarefa" para
+**conduzir um pipeline de ciência de dados completo** dirigindo um agente.
+:::
+::: {.column width="42%"}
+![](../../slides/assets/illus-linechart.svg)
+:::
+::::
+
+::: notes
+Projeto-base: Sentimento_COPOM (portfólio da Análise Macro). A aula ensina a *dirigir* o
+Claude Code para reconstruí-lo, não a copiar e colar o resultado pronto.
+:::
+
+## O que você sai sabendo fazer
+
+- Dirigir o Claude Code num **projeto de pesquisa**, não só num script
+- Coletar dados de **API pública** (BCB) com cache incremental
+- Extrair **sinal** de texto (seções A+B das atas) e cortar tokens
+- Fazer **scoring com 3 LLMs** sob o mesmo prompt, com **saída estruturada (Pydantic)**
+- **Calibrar** o score em pontos da Selic e **validar** em três camadas
+- Empacotar tudo como **paper Quarto** reprodutível e versionado
+
+## Agenda das 2 horas {.smaller}
+
+| Bloco | Tema | ~min |
+|---|---|---:|
+| 0 | Abertura e o problema econômico | 10 |
+| 1 | Arquitetura, CRISP-DM e o papel do agente | 10 |
+| 2 | Setup: `CLAUDE.md`, ambiente e chaves | 15 |
+| 3 | Coleta + pré-processamento (API BCB, seções A+B, cache) | 20 |
+| 4 | Scoring com 3 LLMs (Pydantic, prompt, structured output) | 30 |
+| 5 | Baseline léxico + calibração OLS + validação 3 camadas | 20 |
+| 6 | Visualização, paper Quarto e versionamento | 10 |
+| 7 | Resultados, regras de ouro e próximos passos | 5 |
+
+## Como vamos trabalhar {.smaller}
+
+- Cada etapa tem uma **caixa de PROMPT** — você cola no Claude Code e revisa o que ele faz
+- Trabalhamos no ciclo **explore → plan → code → commit**, igual ao Focus
+- O agente escreve o código; **você é o pesquisador** que decide, valida e questiona
+
+::: {.callout-important}
+## Regra de ouro do projeto
+**Nunca inventar número.** Score, β̂, R², RMSE — tudo sai do dado e do código que roda.
+Se um número não veio de uma célula executada, ele não entra no paper.
+:::
+
+# 🧠 O problema {background-color="#1c2d4f"}
+
+## Ler o Copom é um problema de dados
+
+:::: {.columns}
+::: {.column width="58%"}
+- As **atas do Copom** sinalizam a direção futura da Selic — cada palavra
+  ("cautela", "parcimônia", "vigilância") carrega tom
+- Analistas gastam horas decifrando essa linguagem
+- E se transformássemos o texto subjetivo em um **número** comparável à Selic?
+- Tom *hawkish* (aperto) ↔ *dovish* (afrouxamento), numa escala de **−3 a +3**
+:::
+::: {.column width="42%"}
+![](../../slides/assets/illus-chat.svg)
+:::
+::::
+
+::: {.callout-note}
+Tom de comunicação é uma **dimensão informacional própria** — separável da decisão de
+taxa já anunciada. É exatamente isso que vamos medir.
+:::
+
+## A tese que vamos testar {.smaller}
+
+> Os três modelos **concordam sobre a direção** do tom — qual ata é mais *hawkish* ou
+> *dovish* — mas **divergem sobre a intensidade** com que isso vira variação da Selic.
+
+. . .
+
+| Modelo | $R^2$ in-sample | $\hat{\beta}$ (p.p.) | RMSE walk-forward |
+|---|---:|---:|---:|
+| **GPT-4.1-mini** | **0,66** | $+0{,}50$ | **0,357** (líder) |
+| **Claude Haiku 4.5** | 0,43 | $+0{,}62$ | ~0,67 |
+| **Gemini Flash Lite** | 0,35 | $+0{,}36$ | ~0,67 |
+| Baseline léxico | (ref.) | — | ~0,52 |
+
+::: {.callout-tip}
+O número é o **fim** da aula. Vamos chegar nele rodando o pipeline — não decorando a tabela.
+:::
+
+# 🗺️ Arquitetura {background-color="#1c2d4f"}
+
+## O pipeline em quatro etapas
+
+1. **Coleta + pré-processamento** — API do BCB → atas (seções A+B) + meta Selic
+2. **Scoring** — 3 LLMs em paralelo + 1 baseline léxico → score de tom (−3 a +3)
+3. **Calibração + validação** — OLS por modelo; in-sample, holdout, walk-forward
+4. **Entrega** — paper Quarto reprodutível, com cache incremental e versionamento
+
+. . .
+
+::: {.callout-note}
+Cada etapa vira **um ou mais prompts** para o Claude Code. O agente escreve o código;
+nós conferimos o método.
+:::
+
+## CRISP-DM: o mapa do projeto {.smaller}
+
+| Fase | O que fazemos aqui |
+|---|---|
+| **Entendimento do Negócio** | Medir o tom das atas em escala comparável à Selic |
+| **Entendimento dos Dados** | Atas (API BCB, da reunião 232) + meta Selic (SGS 432) |
+| **Preparação** | Limpeza HTML, extração das seções A+B, alinhamento ata × Selic |
+| **Modelagem** | Prompt único, saída Pydantic, 3 LLMs via LangChain, OLS por modelo |
+| **Avaliação** | In-sample (β̂, IC 95%), holdout (6 atas), walk-forward (n=26) |
+| **Implantação** | Pipeline Quarto, cache CSV por provedor, releases versionadas |
+
+## Onde o Claude Code entra
+
+- Ele **escreve** os coletores, o schema, os prompts de scoring, a calibração e os gráficos
+- Ele **roda** o pipeline, lê os erros das APIs e corrige os *retries*
+- Ele **monta** as tabelas em LaTeX e o paper Quarto
+- **Você** define o método, lê criticamente os números e segura a regra de ouro
+
+::: {.callout-tip}
+Pense no agente como um **assistente de pesquisa sênior**: rápido, incansável e literal.
+A direção científica é sua.
+:::
+
+# ⚙️ Setup {background-color="#1c2d4f"}
+
+## Bloco 2 — Fundação do projeto
+
+::: {.prompt}
+```text
+Estou começando um projeto de pesquisa em Python nesta pasta. O objetivo é
+construir um Índice de Tom das atas do Copom (escala -3 a +3, hawkish/dovish)
+calibrado na variação da Selic, usando três LLMs em paralelo (Gemini, Claude,
+OpenAI) e um baseline léxico, entregue como um paper em Quarto.
+
+Crie:
+1. Um CLAUDE.md com o briefing: objetivo, fontes (API do Copom no bcb.gov.br e
+   série SGS 432 da Selic), metodologia CRISP-DM e a REGRA DE OURO: nunca
+   inventar número — todo valor citado vem de uma célula que roda.
+2. Um .gitignore para Python/Quarto (.venv/, .quarto/, *_files/, .env, __pycache__/).
+3. Um requirements.txt (deixe vazio por enquanto; vamos preencher no próximo passo).
+
+Me mostre a árvore e o CLAUDE.md.
+```
+:::
+
+## Bloco 2 — As dependências
+
+::: {.prompt}
+```text
+Preencha o requirements.txt com o que o pipeline precisa:
+- adaptadores LangChain dos três provedores: langchain, langchain-google-genai,
+  langchain-anthropic, langchain-openai
+- pydantic (saída estruturada)
+- requests e beautifulsoup4 (coleta e limpeza das atas do BCB)
+- pandas, numpy
+- statsmodels e scikit-learn (calibração OLS com inferência)
+- plotnine (gráficos estilo ggplot)
+- jupyter (para o Quarto renderizar Python)
+
+Crie um .env.example com GOOGLE_API_KEY, ANTHROPIC_API_KEY e OPENAI_API_KEY.
+Explique como criar o .venv e instalar.
+```
+:::
+
+## Bloco 2 — Chaves e segredos {.smaller}
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # edite com suas chaves
+```
+
+::: {.callout-important}
+**Nunca** coloque chaves no código nem no git. Elas ficam no `.env` (ignorado) e são lidas
+por variável de ambiente. Peça isso explicitamente ao agente.
+:::
+
+::: {.callout-note}
+Três chaves: **Google AI Studio**, **Anthropic** e **OpenAI**. O custo de reprocessar a
+amostra inteira é **< US\$ 1** — os modelos são os "small & cheap" de cada provedor.
+:::
+
+## Onde criar suas chaves (1/2) {.smaller}
+
+| Provedor | Onde criar a chave | Variável no `.env` |
+|---|---|---|
+| **Google Gemini** | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) → *Create API key* | `GOOGLE_API_KEY` |
+| **Anthropic Claude** | [console.anthropic.com](https://console.anthropic.com) → *Settings → API Keys → Create Key* | `ANTHROPIC_API_KEY` |
+| **OpenAI** | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → *Create new secret key* | `OPENAI_API_KEY` |
+
+::: {.callout-important}
+A chave aparece **uma única vez** — copie na hora. Se perder, é só apagar e gerar outra.
+:::
+
+## Onde criar suas chaves (2/2) {.smaller}
+
+1. **Google AI Studio** — login com a conta Google, *Create API key*, copie. Tem **plano gratuito**; o Flash Lite roda sem cartão na maioria dos casos.
+2. **Anthropic** — crie a conta no Console, adicione **crédito** (a partir de US\$ 5), gere a *API Key* em *API Keys*.
+3. **OpenAI** — na *Platform*, adicione crédito em *Billing*, gere a *secret key* em *API keys*.
+
+. . .
+
+Cole as três no seu `.env` (e confirme que ele está no `.gitignore`):
+
+```bash
+GOOGLE_API_KEY=AIza...
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+```
+
+::: {.callout-tip}
+Em **Anthropic** e **OpenAI** vale a pena pôr um **limite de gasto** (*usage limit*) na conta.
+Como o pipeline usa cache e modelos baratos, a amostra inteira custa **< US\$ 1**.
+:::
+
+# 📥 Coleta e dados {background-color="#1c2d4f"}
+
+## Bloco 3 — Coletor das atas (API do BCB)
+
+::: {.prompt}
+```text
+Crie um módulo de coleta das atas do Copom usando a API pública do BCB:
+- lista:    https://www.bcb.gov.br/api/servico/sitebcb/copom/atas
+- detalhes: https://www.bcb.gov.br/api/servico/sitebcb/copom/atas_detalhes
+Para cada reunião a partir da 232, baixe o HTML da ata, limpe com BeautifulSoup
+(remova tags <sup>, <script>, <style>, notas de rodapé e normalize espaços) e
+guarde como um Document do LangChain com metadados nro_reuniao e data.
+Use requests com Retry e backoff exponencial. Comente em português.
+```
+:::
+
+## Bloco 3 — O truque do sinal: seções A+B
+
+::: {.prompt}
+```text
+Adicione uma função que extrai APENAS as seções A (atualização da conjuntura) e
+B (cenários e riscos) de cada ata, parando antes da seção C (a decisão já
+anunciada). Use regex para achar "A) Atualiza..." e o início de "C) Discuss/
+Decis/Voto/Condu...". Limite a ~4500 caracteres. Explique no comentário por que
+isso corta ~50% dos tokens sem perder sinal informacional.
+```
+:::
+
+::: {.callout-tip}
+Aqui o agente é ótimo, mas **você** traz a hipótese econômica: o sinal está no
+diagnóstico e no balanço de riscos, não no anúncio da taxa.
+:::
+
+## Bloco 3 — Selic e cache incremental {.smaller}
+
+::: {.prompt}
+```text
+Adicione a coleta da meta Selic pela série SGS 432 do BCB
+(https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados), alinhada por data de
+reunião, e calcule a variação em p.p. a cada reunião.
+
+Implemente cache incremental em três níveis no diretório do projeto:
+- atas_cache.json   → texto A+B por nro_reuniao (permanente: ata não muda)
+- selic_cache.json  → espelho da SGS 432 (fallback se a API cair)
+- vamos ter, depois, scores_{gemini,claude,openai}_cache.csv
+
+A regra: só chamar o BCB para reuniões inéditas. Para reprocessar do zero,
+apago o cache correspondente.
+```
+:::
+
+::: {.callout-note}
+Por que recortar a amostra na **reunião 232 (ago/2020)**? Estrutura textual padronizada
+(A/B/C), regime monetário comparável e um ciclo completo (cortes → aperto → cortes →
+aperto). Isso é decisão de pesquisa — diga ao agente o *porquê*.
+:::
+
+# 🤖 Scoring com 3 LLMs {background-color="#1c2d4f"}
+
+## Bloco 4 — Saída estruturada (Pydantic)
+
+::: {.prompt}
+```text
+Vamos pontuar o tom de cada ata com LLMs. Crie um schema Pydantic chamado
+TomAta com um único campo: score (float, de -3.0 a +3.0), com description
+explicando que negativo = dovish, positivo = hawkish, zero = neutro.
+
+Quero usar with_structured_output do LangChain para forçar o modelo a retornar
+esse float — sem parsing de texto frágil. Mostre como ligar isso ao Gemini
+(gemini-flash-lite-latest, temperature=0).
+```
+:::
+
+::: {.callout-tip}
+**Saída estruturada** é o que torna 3 provedores comparáveis: todos devolvem o mesmo
+`float`, no mesmo schema. Sem isso, cada um responde em prosa diferente.
+:::
+
+## Bloco 4 — O prompt de tom (o coração) {.smaller}
+
+::: {.prompt}
+```text
+Escreva as INSTRUCOES_SISTEMA do scoring como uma constante reutilizável entre
+os três provedores. Persona: economista especializado em política monetária do
+BCB. Peça um score de -3.0 a +3.0 com ÂNCORAS EXPLÍCITAS por faixa:
+
+  -3.0 fortemente dovish ... -2.0 dovish ... -1.0 levemente dovish ...
+   0.0 neutro/data-dependent ...
+  +1.0 levemente hawkish ... +2.0 hawkish ... +3.0 fortemente hawkish
+
+Instruções cruciais:
+- avaliar APENAS o tom implícito nas seções de diagnóstico e balanço de riscos;
+- NÃO se basear na decisão de taxa já anunciada;
+- focar em inflação, ancoragem de expectativas, balanço de riscos e forward guidance;
+- usar valores intermediários (ex: -1.5, +0.5) quando ambíguo;
+- ser consistente: atas parecidas recebem scores próximos.
+```
+:::
+
+## Por que âncoras explícitas?
+
+- Sem âncoras, "−2" para um modelo é "−1" para outro — escalas incomparáveis
+- As âncoras **fixam a régua**: todos pontuam contra a mesma definição de cada faixa
+- `temperature=0` + âncoras → **mínima variância** entre chamadas e entre atas
+
+::: {.callout-note}
+O mesmo prompt vai para os **três** provedores. Assim isolamos o efeito do **modelo** do
+efeito do **prompt** ou da **amostra de texto**.
+:::
+
+## Bloco 4 — Inferência com cache em CSV {.smaller}
+
+::: {.prompt}
+```text
+Crie o loop de inferência do Gemini com cache incremental em
+scores_gemini_cache.csv (colunas nro_reuniao, data, score):
+- carrega o CSV se existir; para cada ata, se o nro_reuniao já está no cache,
+  reaproveita e NÃO chama a API;
+- só chama o LLM para atas inéditas; faz clip do score em [-3, 3];
+- usa with_retry (backoff exponencial com jitter, até 6 tentativas) para
+  resistir a ServerError;
+- registra erros sem derrubar o render; só salva o CSV se houve score novo.
+Imprima o progresso ata a ata.
+```
+:::
+
+::: {.callout-tip}
+Dois caches somados: o **CSV local** evita a chamada quando o score já existe; o **prompt
+caching** (próximo slide) barateia as chamadas que de fato acontecem.
+:::
+
+## Bloco 4 — Claude + prompt caching
+
+::: {.prompt}
+```text
+Replique o scoring para o Claude (claude-haiku-4-5, temperature=0), reusando o
+MESMO schema TomAta e as MESMAS INSTRUCOES_SISTEMA. Diferença: envie o bloco de
+instruções como SystemMessage com cache_control {type: "ephemeral"} para ativar
+o prompt caching nativo da Anthropic — da segunda chamada em diante o cabeçalho
+é lido do cache, reduzindo custo de input e latência. Cache em
+scores_claude_cache.csv, alinhado por nro_reuniao com o Gemini.
+```
+:::
+
+## Bloco 4 — OpenAI: o terceiro ponto
+
+::: {.prompt}
+```text
+Agora o terceiro provedor: gpt-4.1-mini, temperature=0, mesmo schema e mesmo
+prompt. A OpenAI usa tool calling nativo via with_structured_output (sem
+caching explícito). Cache em scores_openai_cache.csv, alinhado por nro_reuniao
+com os outros dois. Ao final, monte uma única tabela com uma coluna de score
+por provedor + data + variação da Selic.
+```
+:::
+
+::: {.callout-note}
+Três provedores, **um molde só**. A única coisa que muda entre eles é o adaptador e o
+detalhe de caching — o schema e o prompt são idênticos.
+:::
+
+# 📐 Baseline e calibração {background-color="#1c2d4f"}
+
+## Bloco 5 — O baseline léxico
+
+::: {.prompt}
+```text
+Antes de calibrar, crie um baseline metodológico: um léxico hawkish/dovish em
+português adaptado ao Copom (no espírito de Loughran-McDonald e Apel-Grimaldi).
+Para cada ata, conte termos hawkish e dovish e calcule (n_h - n_d)/(n_h + n_d),
+reescalando para [-3, +3] para ficar comparável aos LLMs. Mantenha o léxico
+pequeno de propósito — ele é o PISO da literatura de dicionários, sem cache
+(é cálculo instantâneo, sem custo de API).
+```
+:::
+
+::: {.callout-tip}
+O baseline existe para **dar régua**: mostra quanto os LLMs ganham sobre contagem de
+palavras. Sem um piso, "R² de 0,66" não diz nada.
+:::
+
+## Bloco 5 — Calibração OLS por modelo {.smaller}
+
+::: {.prompt}
+```text
+Calibre uma regressão OLS por modelo (3 LLMs + baseline) com statsmodels:
+
+    variação_Selic(t) = α + β · score(t) + ε(t)
+
+Para cada modelo, reporte α̂, β̂, erro-padrão, t, p-valor, IC 95% de β, R² e
+R²_ajustado. Monte uma tabela única com os quatro modelos. Quero poder afirmar
+QUANDO a diferença entre dois modelos é estatisticamente robusta.
+```
+:::
+
+$$ \Delta \text{Selic}_t = \alpha + \beta \cdot \text{Score}_t + \varepsilon_t $$
+
+::: {.callout-note}
+β̂ é a **sensibilidade**: quantos p.p. de Selic por unidade de score. É aqui que os
+modelos divergem (de +0,36 a +0,62).
+:::
+
+## Bloco 5 — Validação em três camadas {.smaller}
+
+::: {.prompt}
+```text
+Agora a robustez, em três exercícios complementares:
+
+1. In-sample: a inferência OLS que já temos (β̂, IC 95%, R²).
+2. Holdout: calibre α̂, β̂ só nas atas de treino e meça RMSE/MAE nas ÚLTIMAS
+   SEIS reuniões, fora da amostra.
+3. Walk-forward (janela expansiva, treino mínimo 20 atas): para cada ata t a
+   partir daí, treine OLS em {1..t-1} e preveja t; varra toda a amostra e
+   reporte RMSE/MAE médios (n_pred ≈ 26).
+
+Monte uma tabela para cada exercício. Explique no texto por que walk-forward
+elimina o viés de "janela calma" que pode favorecer um modelo no holdout.
+```
+:::
+
+## Por que três camadas, e não uma {.smaller}
+
+- **In-sample** → inferência: a relação score↔Selic existe e é significativa?
+- **Holdout** → desempenho numa janela específica (a mais recente)
+- **Walk-forward** → generalização ao longo do **ciclo inteiro**
+
+. . .
+
+::: {.callout-tip}
+É aqui que a tese se sustenta: o Claude tem o **maior β̂ in-sample** mas **overfita**
+(RMSE quase dobra fora da amostra); o GPT lidera na walk-forward. Mesmo sinal,
+calibrações diferentes.
+:::
+
+# 📊 Entrega {background-color="#1c2d4f"}
+
+## Bloco 6 — Os gráficos (plotnine)
+
+::: {.prompt}
+```text
+Gere dois gráficos com plotnine (estilo ggplot), salvos em PNG por chunks
+silenciosos:
+1. O Índice de Tom calibrado em p.p. — uma linha por LLM ao longo do tempo
+   (o baseline fica fora dos gráficos).
+2. O z-score do tom (surpresa de comunicação), por modelo.
+Use a paleta da Análise Macro e rótulos em português.
+```
+:::
+
+:::: {.columns}
+::: {.column width="50%"}
+![](projeto/sentimento_copom_indice.png)
+:::
+::: {.column width="50%"}
+![](projeto/sentimento_copom_zscore.png)
+:::
+::::
+
+## Bloco 6 — O paper Quarto reprodutível {.smaller}
+
+::: {.prompt}
+```text
+Monte tudo como um paper técnico em Quarto + LaTeX (PDF): titlepage com a logo
+da Análise Macro, resumo, seções Introdução, Revisão da Literatura, Metodologia
+e Dados, Implementação (com os chunks comentados), Resultados, Próximos Passos,
+Conclusão e Referências (referencias.bib). As tabelas de regressão saem em
+booktabs com threeparttable (nota embaixo, padrão de journal). Renderize com
+`quarto render` e me mostre se algum chunk falhou.
+```
+:::
+
+::: {.callout-note}
+As três tabelas (in-sample, holdout, walk-forward) e os dois gráficos são gerados pelo
+**código que roda** — nenhum número é digitado à mão. É a regra de ouro virando engenharia.
+:::
+
+## Bloco 6 — Duas edições + versionamento {.smaller}
+
+::: {.prompt}
+```text
+Crie duas edições paralelas do paper que diferem em DUAS linhas:
+- base (echo: true) — mostra todos os chunks, auditável
+- público (echo: false) — esconde os chunks, edição do leitor
+Mudanças de prosa atualizam ambos; mudanças de código vão só na base.
+
+E um CHANGELOG.md no formato Keep a Changelog, com snapshot por release em
+versions/vX.Y_AAAA-MM-DD/. Convenção: major = nova rodada metodológica,
+minor = novos achados/próximos passos, patch = correções de prosa.
+```
+:::
+
+::: {.callout-tip}
+Pesquisa séria é **reprodutível e versionada**. O agente é excelente em manter as duas
+edições em sincronia e em escrever um CHANGELOG honesto.
+:::
+
+# ✅ Fechamento {background-color="#1c2d4f"}
+
+## Os resultados, recapitulando {.smaller}
+
+- Os três LLMs **concordam na direção** do tom; **divergem na intensidade** (β̂: +0,36 a +0,62)
+- **GPT-4.1-mini** lidera os três exercícios (R² ≈ 0,66; RMSE walk-forward 0,357)
+- **Claude Haiku 4.5** tem o maior β̂ in-sample, mas **overfita** fora da amostra
+- **Gemini Flash Lite** é o mais conservador; empata o Claude out-of-sample
+- O **baseline léxico** ganha o holdout (janela calma) mas volta ao último na walk-forward
+  → a vantagem dos LLMs é **genuína sobre o ciclo inteiro**
+
+## Regras de ouro da aula
+
+- **Nunca inventar número** — todo valor vem de uma célula executada
+- **Mesmo prompt, três modelos** — para isolar o efeito do modelo
+- **Saída estruturada** — comparabilidade só existe com schema fixo
+- **Cache incremental** — a cada nova ata, uma chamada por provedor
+- **Validar em camadas** — in-sample não basta; teste fora da amostra
+
+## Próximos passos (v2.0) {.smaller}
+
+:::: {.columns}
+::: {.column width="55%"}
+- Capacidade **antecedente** ($t \to t+1$): regressão preditiva
+- **Robustez a perturbações de prompt** e variância entre execuções
+- Índice **ensemble** (média ponderada por $R^2$)
+- **Modelos maiores** (`gpt-4.1`, `claude-sonnet-4-5`, `gemini-2.5-pro`)
+- **Probit ordenado** para classificar o viés
+- Estender aos **comunicados** oficiais do Copom
+:::
+::: {.column width="45%"}
+![](../../slides/assets/illus-network.svg)
+:::
+::::
+
+## Seu exercício
+
+- Reconstrua o pipeline **prompt a prompt** na sua máquina
+- Troque um dos modelos por outro provedor e **recalibre**
+- Rode a **walk-forward** e veja se a liderança se mantém
+- Escreva o **CHANGELOG** da sua primeira release
+
+. . .
+
+::: {.callout-note}
+## O projeto completo
+A cópia auditável vive em `projetos/sentimento-copom/projeto/` — paper base e público,
+caches, scores e gráficos.
+:::
+
+. . .
+
+**Obrigado!** — Análise Macro

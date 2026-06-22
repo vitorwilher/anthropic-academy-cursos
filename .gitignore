@@ -10,6 +10,12 @@ _site/
 __pycache__/
 *.pyc
 
+# Segredos — chaves de API ficam SÓ no .env (nunca versionado)
+.env
+.env.*
+!.env.example
+
 # Os slides .html são GERADOS pelo Quarto no GitHub Action (publish.yml) e publicados
 # no Pages — não precisam ser versionados. O index.html (escrito à mão) é versionado.
 slides/*/slides.html
+projetos/*/slides.html

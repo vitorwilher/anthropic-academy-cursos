@@ -1,0 +1,49 @@
+# Artefatos intermediários do Quarto
+*.quarto_ipynb
+*.quarto_ipynb_*
+.quarto/
+_freeze/
+_files/
+
+# Builds e PDFs gerados
+# (descomente se quiser que os PDFs fiquem fora do repo;
+#  por padrão deixamos versionado para distribuição direta no GitHub)
+# *.pdf
+
+# Caches de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Snapshots ad-hoc de sessão (releases formais ficam em versions/, esses são descartáveis)
+_rollback/
+
+# Material legado (versões antigas, ipynb anterior à migração para .qmd)
+archive/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# RStudio (caso .Rhistory seja gerado por render no RStudio)
+.Rhistory
+.RData
+.Ruserdata

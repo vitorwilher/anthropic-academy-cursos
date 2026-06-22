@@ -16,8 +16,12 @@ cursos/<curso>/            # anotações por curso (README = índice, anotacoes.
 slides/<curso>/slides.qmd  # deck Quarto/reveal.js de cada curso
 slides/theme-am.scss       # tema com a identidade da Análise Macro
 slides/assets/             # logos, ilustrações SVG e o .excalidraw
+projetos/<projeto>/        # aulas-projeto (slides.qmd + projeto/ = cópia auditável)
 index.html                 # landing page (GitHub Pages)
 ```
+
+Os decks em `projetos/` ficam **dois níveis** abaixo da raiz, então referenciam o tema e
+os assets como `../../slides/theme-am.scss` e `../../slides/assets/`.
 
 ## Convenções
 
