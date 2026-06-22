@@ -1,0 +1,290 @@
+---
+title: "Introdução aos Subagents"
+subtitle: "Delegar, paralelizar e manter o contexto limpo no Claude Code"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- O que é um **subagent** e por que ele existe
+- Por que o **contexto isolado** importa
+- Como **criar** um subagent (arquivo markdown + `/agents`)
+- Como **projetar** subagents eficazes
+- Como **usá-los bem**: delegar, paralelizar e quando *não* usar
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "Introduction to Subagents" da Anthropic Academy, com exemplos
+voltados ao público da Análise Macro (economistas, analistas, profissionais de finanças).
+Quatro aulas oficiais: What are subagents? · Creating a subagent · Designing effective
+subagents · Using subagents effectively.
+:::
+
+# 🤖 O que é um subagent {background-color="#1c2d4f"}
+
+## Um assistente especializado dentro do Claude Code
+
+:::: {.columns}
+::: {.column width="58%"}
+- Um **subagent** é um assistente de IA com uma tarefa específica
+- Roda em uma **janela de contexto própria**, com system prompt, ferramentas e permissões próprios
+- Recebe a tarefa, trabalha **sozinho** e devolve **só o resultado** — depois encerra
+- O agente principal recebe o resumo, não toda a investigação
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia para economistas
+É como mandar um **assistente de pesquisa** à biblioteca: ele lê 200 páginas e volta com
+**um parágrafo**. Você fica com a conclusão — não com as 200 páginas na sua mesa.
+:::
+
+## Por que o contexto isolado importa
+
+- A **janela de contexto** é finita: cabe só uma quantidade de texto na conversa
+- Encher o contexto com logs, buscas e arquivos que você não vai reler **degrada** o trabalho
+- O subagent faz esse trabalho "sujo" no contexto **dele** e te entrega só o essencial
+
+. . .
+
+::: {.callout-note}
+**Para que servem, na prática:**
+
+- **Preservar contexto** — exploração e saída volumosa ficam fora da conversa principal
+- **Impor restrições** — limitar quais ferramentas o subagent pode usar
+- **Reusar** configurações entre projetos
+- **Controlar custo** — rotear tarefas simples para modelos rápidos (ex.: Haiku)
+:::
+
+## Os subagents que já vêm prontos {.smaller}
+
+| Subagent | Modelo | Para que serve |
+|---|---|---|
+| **Explore** | Haiku | Busca e leitura de código (somente leitura, rápido e barato) |
+| **Plan** | Herda | Pesquisa no *plan mode* antes de propor um plano (leitura) |
+| **general-purpose** | Herda | Tarefas complexas em vários passos, com leitura **e** escrita |
+
+. . .
+
+O Claude **delega automaticamente** a esses subagents quando a tarefa combina — você nem
+precisa pedir. Eles existem justamente para manter a conversa principal enxuta.
+
+# 🛠️ Criando um subagent {background-color="#1c2d4f"}
+
+## Um arquivo markdown com frontmatter
+
+:::: {.columns}
+::: {.column width="55%"}
+- Um subagent é um **arquivo `.md`**: frontmatter YAML + corpo
+- **Frontmatter** = a "ficha técnica" (nome, quando usar, ferramentas, modelo)
+- **Corpo** = o *system prompt* que guia o comportamento
+- O subagent recebe **só** esse system prompt, não o do Claude Code inteiro
+:::
+::: {.column width="45%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+## Anatomia do arquivo
+
+```markdown
+---
+name: resumidor-fonte
+description: Lê uma fonte (PDF, página, CSV) e devolve um resumo
+  curto e factual. Use proativamente para sintetizar documentos longos.
+tools: Read, Glob, Grep, WebFetch
+model: haiku
+---
+
+Você é um analista de research. Ao receber uma fonte, leia-a e
+devolva no máximo 8 bullets factuais, sempre citando os números
+exatamente como aparecem no texto. Nunca invente dados.
+```
+
+. . .
+
+- `name` e `description` são **obrigatórios** — a `description` é o que faz o Claude saber **quando** delegar
+- `tools` e `model` são opcionais (sem `tools`, herda todas; sem `model`, herda o da sessão)
+
+## Onde salvar — projeto x usuário {.smaller}
+
+| Local | Escopo | Quando usar |
+|---|---|---|
+| `.claude/agents/` | **Projeto** (vai para o git) | Subagents do time, específicos do repositório |
+| `~/.claude/agents/` | **Usuário** (todos os projetos) | Seus subagents pessoais, em qualquer projeto |
+
+. . .
+
+::: {.callout-tip}
+Salve os subagents da equipe em `.claude/agents/` e **versione no git**: todo mundo na
+mesa de pesquisa passa a ter o mesmo "resumidor de boletins" padronizado.
+:::
+
+## O atalho: o comando `/agents`
+
+- Digite **`/agents`** no Claude Code para abrir a interface de gerenciamento
+- Aba **Library**: criar (setup guiado ou *"Generate with Claude"*), editar, escolher ferramentas, modelo e cor
+- Aba **Running**: ver e parar subagents em execução
+
+. . .
+
+::: {.callout-note}
+Editar o arquivo direto no disco exige **reiniciar a sessão** para carregar. Já o que você
+cria pelo `/agents` passa a valer **na hora**.
+:::
+
+# ✏️ Projetando subagents eficazes {background-color="#1c2d4f"}
+
+## Quatro boas práticas
+
+1. **Foco único** — cada subagent deve ser excelente em **uma** tarefa
+2. **Descrição detalhada** — o Claude decide delegar pela `description` (use *"use proactively"*)
+3. **Limitar ferramentas** — conceda só o necessário (um revisor não precisa de `Write`/`Edit`)
+4. **Versionar** — subagents de projeto entram no git e melhoram com o time
+
+. . .
+
+::: {.callout-tip}
+Subagent genérico demais **não é delegado** nem ajuda. Foco + descrição clara = o Claude
+chama na hora certa.
+:::
+
+## Descrição: vaga x acionável
+
+::: {.callout-note}
+**Fraca:** `description: Ajuda com dados.`
+
+**Forte:** `description: Lê um boletim do Banco Central e extrai as medianas de IPCA,
+Selic, PIB e câmbio em uma tabela. Use proativamente ao receber um PDF de boletim.`
+:::
+
+. . .
+
+- A descrição forte diz **o que faz** e **quando usar** — é o gatilho da delegação automática
+- Limitar ferramentas (`tools: Read, Grep, WebFetch`) deixa o subagent **seguro e focado**
+- Escolha o modelo pela tarefa: **Haiku** para busca barata, **Sonnet/Opus** para raciocínio
+
+# 🧭 Usando subagents bem {background-color="#1c2d4f"}
+
+## Três formas de invocar
+
+- **Automática** — o Claude delega sozinho, pela `description` + contexto
+- **Linguagem natural** — *"Use o subagent `resumidor-fonte` para sintetizar este PDF"*
+- **`@-mention`** — digite `@` e escolha o subagent: garante que **aquele** seja usado
+
+. . .
+
+::: {.callout-note}
+Há ainda `claude --agent <nome>`, que faz a **sessão inteira** assumir o system prompt e as
+ferramentas daquele subagent — útil para uma sessão dedicada (ex.: só revisão).
+:::
+
+## Padrão 1 — isolar operações volumosas
+
+- Rodar testes, baixar documentação, processar logs: tudo isso **enche** o contexto
+- Delegue a um subagent — a saída verborrágica fica no contexto **dele**, só o resumo volta
+
+. . .
+
+> "Use um subagent para rodar a suíte de testes e me reportar **só** os testes que
+> falharam, com a mensagem de erro de cada um."
+
+::: {.callout-tip}
+O mesmo vale para research: "leia este relatório de 80 páginas e devolva 5 pontos" — o
+PDF inteiro nunca entra na sua conversa principal.
+:::
+
+## Padrão 2 — pesquisa em paralelo
+
+:::: {.columns}
+::: {.column width="56%"}
+- Para investigações **independentes**, dispare vários subagents ao mesmo tempo
+- Cada um explora sua área; depois o Claude **sintetiza** os achados
+- Funciona melhor quando os caminhos **não dependem** uns dos outros
+:::
+::: {.column width="44%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+. . .
+
+> "Para a nota de conjuntura, pesquise **em paralelo** com subagents separados: um para
+> inflação (IPCA), um para atividade (PIB) e um para o câmbio. Depois junte tudo."
+
+## Padrão 3 — encadear subagents
+
+- Para fluxos em **etapas**, peça subagents em **sequência**
+- Cada um termina, devolve ao Claude, que passa o contexto relevante ao próximo
+
+. . .
+
+> "Primeiro um subagent extrai as medianas do boletim; depois outro redige o resumo
+> executivo a partir dessas medianas."
+
+::: {.callout-note}
+**Foreground** (bloqueia até terminar) x **background** (roda concorrente enquanto você
+segue trabalhando). O Claude escolhe pelo tipo de tarefa — ou você pede "rode em background".
+:::
+
+## Quando NÃO usar
+
+- **Tarefa trivial** — o custo de montar o subagent não compensa
+- **Precisa do histórico completo** da conversa — aí um *fork* (que herda o contexto) cabe melhor
+- **Muitos subagents devolvendo respostas longas** — os resultados voltam ao contexto principal e podem enchê-lo de novo
+
+. . .
+
+::: {.callout-tip}
+Cada invocação é uma **instância nova, de contexto fresco**: o subagent não lembra
+conversas anteriores. Delegue o que é **volumoso, independente ou repetitivo** — e mantenha
+a conversa principal limpa.
+:::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Um **subagent** trabalha em **contexto isolado** e devolve só o resumo
+- Criar = **arquivo markdown** (`name`, `description`, `tools`, `model` + system prompt) ou `/agents`
+- Projete com **foco único**, **descrição clara** e **ferramentas mínimas**
+- Use para **isolar saída volumosa**, **paralelizar** pesquisa independente e **encadear** etapas
+- Não exagere: cada resultado volta ao contexto principal
+
+## Próximos passos
+
+- Criar um subagent **read-only** que resume uma fonte (ata do COPOM, relatório, CSV)
+- Versionar os subagents da mesa em `.claude/agents/`
+- Experimentar **pesquisa em paralelo** para uma nota de conjuntura
+
+. . .
+
+**Obrigado!** — Análise Macro

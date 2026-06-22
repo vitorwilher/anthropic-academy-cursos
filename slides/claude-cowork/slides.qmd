@@ -1,0 +1,292 @@
+---
+title: "Introdução ao Claude Cowork"
+subtitle: "O Claude trabalhando de forma mais autônoma sobre seus arquivos e tarefas"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- O que é o **Claude Cowork** e como ele difere do Chat e do Code
+- Entregar a **primeira tarefa** de ponta a ponta
+- Trabalhar sobre **arquivos, pastas e apps** de forma mais autônoma
+- Personalizar com **instruções, projects, skills e plugins**
+- Usar o Claude **onde você já trabalha** (Chrome, Microsoft 365)
+- **Autonomia com supervisão**: revisar, validar e compartilhar com segurança
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "Introduction to Claude Cowork" da Anthropic Academy
+(anthropic.skilljar.com/introduction-to-claude-cowork), com exemplos voltados ao público
+da Análise Macro (economistas, analistas, profissionais de finanças).
+:::
+
+# 🧑‍💻 Conhecendo o Cowork {background-color="#1c2d4f"}
+
+## O que é o Claude Cowork
+
+:::: {.columns}
+::: {.column width="58%"}
+- O **espaço de trabalho agêntico** dentro do app do Claude
+- O Claude atua sobre seus **arquivos, pastas e apps**: **lê, edita e produz**
+  entregáveis reais na sua máquina
+- Não é só conversa — é uma **sessão de trabalho**
+- Você **descreve a tarefa**, o Claude **planeja e executa**, e você **conduz**
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia para a mesa
+Pense no Cowork como um **estagiário sênior sentado ao seu lado**: você entrega a pasta do
+mês, ele organiza os arquivos e monta o material — mas você revisa antes de enviar.
+:::
+
+## Chat × Cowork × Code
+
+| | **Chat** | **Cowork** | **Code** |
+|---|---|---|---|
+| Natureza | Conversa | Sessão de trabalho | Agente no terminal |
+| Atua sobre | A conversa | Arquivos, pastas, apps | Projetos de código |
+| Autonomia | Você pergunta | Planeja e executa | Executa tarefas de dev |
+| Quem é | Todos | Analista/profissional | Quem programa |
+
+. . .
+
+::: {.callout-note}
+Não substituem um ao outro: *Chat* para explorar ideias, *Cowork* para montar entregáveis
+com vários arquivos, *Code* para automatizar coleta e tratamento de dados.
+:::
+
+## Primeiros passos
+
+- Abra o **Cowork** no app do Claude (desktop)
+- Aponte para a **pasta de trabalho** e conceda acesso
+- Escolha **onde os arquivos vivem** — o Claude trabalha ali, à vista
+
+. . .
+
+::: {.callout-tip}
+Comece com uma pasta pequena e de baixo risco (ex.: rascunhos de um relatório), para ganhar
+confiança antes de dar acesso a material sensível.
+:::
+
+# 📂 Entregando a primeira tarefa {background-color="#1c2d4f"}
+
+## O ciclo da tarefa
+
+:::: {.columns}
+::: {.column width="58%"}
+1. **Descrever** — o objetivo, com contexto e formato
+2. **Planejar** — o Claude propõe as etapas
+3. **Conduzir** — você aprova ou ajusta o plano
+4. **Executar** — o Claude faz o trabalho sobre os arquivos
+5. **Revisar** — você confere o resultado
+
+. . .
+
+O segredo está no passo 3: **conduzir** (*steering*) mantém tarefas longas no rumo.
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+## Sua primeira tarefa
+
+- Descreva como falaria com um colega — claro e específico
+- Aponte os arquivos de entrada e o entregável esperado
+
+. . .
+
+**Exemplo (finanças):**
+
+> "Na pasta `carta-junho/` há quatro arquivos: o texto de macro, a tabela de retornos,
+> os comentários de renda fixa e o disclaimer. Monte um rascunho único da **carta mensal
+> ao investidor**, em pt-BR, tom técnico, com no máximo 2 páginas."
+
+## Conduzir ao longo do caminho
+
+- Acompanhe o plano antes de o Claude começar a alterar arquivos
+- Interrompa e ajuste: "use os retornos líquidos", "encurte a seção de macro"
+- Peça que **mostre o que mudou** antes de salvar por cima
+
+. . .
+
+::: {.callout-note}
+Tarefas multi-passo se beneficiam de **checkpoints**: aprovar o plano, revisar o rascunho,
+só então gerar a versão final.
+:::
+
+# ⚙️ Tornando o Cowork seu {background-color="#1c2d4f"}
+
+## Melhores resultados, mais rápido
+
+- O **contexto molda o plano**: quanto mais claro o objetivo, melhor o caminho
+- Diga quem você é, qual o público e qual o formato do entregável
+- **Itere**: o primeiro plano é um rascunho — refine
+
+. . .
+
+> "Você é um analista de uma casa de research. O público é o investidor pessoa física.
+> Prefira parágrafos curtos e evite jargão."
+
+## Contexto permanente: instruções globais e projects
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Instruções globais** — valem em toda sessão (tom, idioma, regras da casa)
+- **Projects** — agrupam contexto + arquivos por tema
+- Contexto permanente = você **não repete** as mesmas regras toda vez
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+. . .
+
+**Exemplo:** um project *"Carta mensal"* com o template, o disclaimer padrão e a instrução
+"sempre cite a fonte de cada número".
+
+## Skills: ensine o Cowork do seu jeito
+
+- **Skills** empacotam instruções + recursos para **tarefas recorrentes**
+- O Claude aciona a skill certa conforme o pedido
+- Padronizam qualidade: a mesma tarefa sai sempre no mesmo padrão
+
+. . .
+
+::: {.callout-note}
+**Exemplo:** uma skill *"Carta ao investidor"* que sempre segue a estrutura da casa —
+resumo macro, desempenho da carteira, posicionamento e disclaimer.
+:::
+
+## Plugins: codifique a expertise do time
+
+- **Plugins** empacotam o **conhecimento do time** de forma reaproveitável
+- Combinam skills, contexto e fluxos numa unidade compartilhável
+- Transformam a metodologia da casa em um **ativo**, não em conhecimento na cabeça de um
+
+. . .
+
+> Da skill individual ao plugin do time: o que funciona para você passa a funcionar para
+> toda a mesa.
+
+# 🌐 O Claude onde você trabalha {background-color="#1c2d4f"}
+
+## Claude no Chrome
+
+:::: {.columns}
+::: {.column width="58%"}
+- O Claude atua dentro do **navegador**, sobre as páginas que você usa
+- Útil para coletar e organizar informação de portais web no fluxo de trabalho
+- Menos copiar-e-colar entre a aba e o documento
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: {.callout-tip}
+Sempre revise o que o Claude extrai de uma página antes de usar em um entregável — fontes
+web mudam e precisam de conferência.
+:::
+
+## Claude para Microsoft 365
+
+- O Claude trabalha em **Word, Excel, PowerPoint e Outlook**
+- Redigir documentos, organizar planilhas, montar apresentações, rascunhar e-mails
+- O entregável nasce **já no formato** em que o time consome
+
+. . .
+
+::: {.callout-note}
+**Exemplo (finanças):** transformar a tabela de retornos do Excel em uma seção da carta no
+Word, mantendo os números — sem redigitar.
+:::
+
+# 🛡️ Compartilhar e fazer com segurança {background-color="#1c2d4f"}
+
+## Autonomia pede supervisão
+
+:::: {.columns}
+::: {.column width="58%"}
+- Mais autonomia = mais responsabilidade do **revisor humano**
+- **Revise antes de publicar**: o Claude edita arquivos de verdade
+- Controle o **escopo do acesso**: dê só as pastas necessárias
+- Em economia e finanças, **nunca publique um número sem conferir a fonte**
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+## Validar antes de compartilhar
+
+- **Valide as skills** antes de empacotá-las em plugins
+- Teste com casos reais: a saída segue o padrão da casa?
+- Só então distribua — qualidade e confiança vêm antes da escala
+
+. . .
+
+::: {.callout-tip}
+Uma skill mal validada se multiplica como erro no time inteiro. Validar é barato; corrigir
+depois da distribuição, não.
+:::
+
+## Compartilhar com o time
+
+- Compartilhe **skills, plugins e contexto** com colegas
+- O que você padronizou vira o **padrão da mesa**
+- Valor que se multiplica: cada melhoria beneficia todo mundo
+
+. . .
+
+> Do trabalho individual ao ativo coletivo: o Cowork bem usado eleva o time, não só você.
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- **Cowork é uma sessão de trabalho**: você descreve, o Claude planeja e executa, você conduz
+- Atua sobre **arquivos, pastas e apps** — entregáveis reais, não só respostas
+- Personalize com **instruções globais, projects, skills e plugins**
+- Use o Claude **onde você já trabalha** (Chrome, Microsoft 365)
+- **Autonomia com supervisão**: revisar, validar e compartilhar com segurança
+
+## Próximos passos
+
+- Escolha uma tarefa recorrente da sua rotina (ex.: montar a carta mensal)
+- Crie um **project** com o contexto permanente e uma **skill** para o padrão
+- Valide, então **compartilhe** com o time
+
+. . .
+
+**Obrigado!** — Análise Macro

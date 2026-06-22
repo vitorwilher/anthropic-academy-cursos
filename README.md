@@ -16,6 +16,15 @@ em [SKILLS.md](SKILLS.md); briefing do projeto em [CLAUDE.md](CLAUDE.md).
 | **Claude 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-101/slides.html) | [`slides/claude-101/`](slides/claude-101/) |
 | **Claude Code 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-code-101/slides.html) | [`slides/claude-code-101/`](slides/claude-code-101/) |
 | **Claude Platform 101** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-platform-101/slides.html) | [`slides/claude-platform-101/`](slides/claude-platform-101/) |
+| **Introdução ao MCP** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/introduction-to-mcp/slides.html) | [`slides/introduction-to-mcp/`](slides/introduction-to-mcp/) |
+| **MCP: Tópicos Avançados** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/mcp-advanced-topics/slides.html) | [`slides/mcp-advanced-topics/`](slides/mcp-advanced-topics/) |
+| **Construindo com a Claude API** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/building-with-claude-api/slides.html) | [`slides/building-with-claude-api/`](slides/building-with-claude-api/) |
+| **Introdução às Agent Skills** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/agent-skills/slides.html) | [`slides/agent-skills/`](slides/agent-skills/) |
+| **Introdução aos Subagents** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/subagents/slides.html) | [`slides/subagents/`](slides/subagents/) |
+| **AI Fluency: Frameworks e Fundamentos** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/ai-fluency/slides.html) | [`slides/ai-fluency/`](slides/ai-fluency/) |
+| **Introdução ao Claude Cowork** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-cowork/slides.html) | [`slides/claude-cowork/`](slides/claude-cowork/) |
+| **Claude Code na Prática** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/claude-code-in-action/slides.html) | [`slides/claude-code-in-action/`](slides/claude-code-in-action/) |
+| **Capacidades e Limitações da IA** | ✅ Pronto | [Abrir slides](https://vitorwilher.github.io/anthropic-academy-cursos/slides/ai-capabilities-and-limitations/slides.html) | [`slides/ai-capabilities-and-limitations/`](slides/ai-capabilities-and-limitations/) |
 
 > Dica de navegação no reveal.js: **setas** ← → para avançar, **F** tela cheia,
 > **S** modo apresentador (com as notas), **O** visão geral.
@@ -36,22 +45,22 @@ Guia completo com os prompts:
 
 ## 🗺️ Trilha de cursos (catálogo da Anthropic Academy)
 
-Cursos já transformados em slides e os **previstos** (roadmap), seguindo o catálogo oficial:
+Cursos transformados em slides, seguindo o catálogo oficial:
 
 | # | Curso (Anthropic Academy) | Situação aqui |
 |---|---|---|
 | 1 | Claude 101 | ✅ Slides prontos |
 | 2 | Claude Code 101 | ✅ Slides prontos |
 | 3 | Claude Platform 101 | ✅ Slides prontos |
-| 4 | Introduction to Model Context Protocol | 🔜 Previsto |
-| 5 | Model Context Protocol: Advanced Topics | 🔜 Previsto |
-| 6 | Building with the Claude API | 🔜 Previsto |
-| 7 | Introduction to Agent Skills | 🔜 Previsto |
-| 8 | Introduction to Subagents | 🔜 Previsto |
-| 9 | AI Fluency: Framework & Foundations | 🔜 Previsto |
-| 10 | Introduction to Claude Cowork | 🔜 Previsto |
-| 11 | Claude Code in Action | 🔜 Previsto |
-| 12 | AI Capabilities and Limitations | 🔜 Previsto |
+| 4 | Introduction to Model Context Protocol | ✅ Slides prontos |
+| 5 | Model Context Protocol: Advanced Topics | ✅ Slides prontos |
+| 6 | Building with the Claude API | ✅ Slides prontos |
+| 7 | Introduction to Agent Skills | ✅ Slides prontos |
+| 8 | Introduction to Subagents | ✅ Slides prontos |
+| 9 | AI Fluency: Framework & Foundations | ✅ Slides prontos |
+| 10 | Introduction to Claude Cowork | ✅ Slides prontos |
+| 11 | Claude Code in Action | ✅ Slides prontos |
+| 12 | AI Capabilities and Limitations | ✅ Slides prontos |
 
 ## 📁 Estrutura do repositório
 

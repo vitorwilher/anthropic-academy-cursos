@@ -1,0 +1,350 @@
+---
+title: "Introdução ao Model Context Protocol (MCP)"
+subtitle: "Conectando o Claude às suas ferramentas e dados"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- O **problema** que o MCP resolve e por que ele surgiu
+- A arquitetura **cliente–servidor** do MCP
+- As três primitivas: **tools, resources e prompts**
+- Como o Claude usa um **servidor MCP** na prática
+- Construir um servidor MCP simples em **Python**
+- Cuidados de **segurança e confiança**
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "Introduction to Model Context Protocol" da Anthropic Academy,
+com exemplos voltados ao público da Análise Macro (economistas, analistas, finanças).
+Aulas reais: Introducing MCP, MCP clients, Defining tools, Server inspector, Implementing
+a client, Defining/Accessing resources, Defining prompts, Prompts in the client, review.
+:::
+
+# 🧩 O que é o MCP {background-color="#1c2d4f"}
+
+## O problema: integrações sob medida
+
+:::: {.columns}
+::: {.column width="58%"}
+- Cada ferramenta nova exigia **código de integração próprio**
+- N modelos × M ferramentas = **N×M conexões** para manter
+- Acoplamento frágil: muda a API, quebra a integração
+- Conhecimento espalhado, difícil de reaproveitar
+
+. . .
+
+**Na prática:** ligar o Claude à sua base de cotações, ao banco de dados e a uma planilha
+era, antes, três integrações separadas e descartáveis.
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+## A solução: um protocolo aberto
+
+- **MCP** é um **padrão aberto** para conectar modelos a ferramentas e dados
+- Funciona como uma **"porta USB-C" para IA**: um conector, muitos dispositivos
+- Quem expõe dados escreve **um servidor**; qualquer cliente compatível se conecta
+- De N×M para **N+M**: cada lado fala o mesmo protocolo
+
+. . .
+
+::: {.callout-tip}
+## Analogia para economistas
+Pense no MCP como um **padrão de mercado**, tipo o formato de um arquivo CSV ou um
+protocolo de troca de mensagens (FIX no mercado financeiro): uma vez que todos adotam,
+a integração deixa de ser artesanal e vira *plug-and-play*.
+:::
+
+## O que o MCP destrava
+
+- Acesso a **dados ao vivo**: APIs, bancos, arquivos, sistemas internos
+- **Ações**: o modelo não só lê, ele executa tarefas no seu ambiente
+- **Reuso**: um servidor MCP serve a vários clientes e equipes
+- Ecossistema crescente de servidores prontos (GitHub, Drive, bancos de dados...)
+
+. . .
+
+> "Conecte-se ao servidor de séries do BCB e me traga o IPCA dos últimos 12 meses."
+
+# 🏗️ Arquitetura cliente–servidor {background-color="#1c2d4f"}
+
+## Os três papéis
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Host** — o aplicativo onde você está (ex.: Claude Desktop, Claude Code)
+- **Client** — vive dentro do host e mantém **1 conexão para cada servidor**
+- **Server** — expõe **tools, resources e prompts** de um sistema específico
+
+. . .
+
+A inteligência (o modelo) fica no **host**; o **server** só oferece capacidades de forma
+padronizada. Eles conversam por mensagens **JSON-RPC**.
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+## Como a conexão funciona
+
+- Ao iniciar, cliente e servidor fazem um **handshake** e negociam capacidades
+- O cliente pergunta: *"quais tools, resources e prompts você oferece?"*
+- O servidor responde com a **lista e o esquema** de cada um
+- A partir daí, o host disponibiliza essas capacidades ao modelo
+
+. . .
+
+::: {.callout-note}
+Um host pode conectar **vários servidores ao mesmo tempo** — um para o banco de dados,
+outro para o Drive, outro para sua API de cotações. O Claude vê tudo como um só conjunto
+de capacidades.
+:::
+
+# 🔌 As três primitivas {background-color="#1c2d4f"}
+
+## Tools — ações controladas pelo modelo
+
+- **Tools** são funções que o **modelo decide chamar** sozinho
+- Têm nome, descrição e um **esquema de parâmetros** (entradas)
+- Servem para *fazer coisas*: consultar API, gravar em banco, calcular
+
+. . .
+
+```json
+{
+  "name": "get_series",
+  "description": "Retorna uma série temporal do BCB pelo código SGS",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "codigo": { "type": "integer", "description": "Código SGS da série" },
+      "ultimos": { "type": "integer", "description": "Nº de observações" }
+    },
+    "required": ["codigo"]
+  }
+}
+```
+
+## Resources — dados controlados pela aplicação
+
+- **Resources** são **dados de leitura** identificados por uma URI
+- Quem decide quando carregar é a **aplicação/usuário**, não o modelo
+- Ideais para contexto: arquivos de config, documentos, catálogos
+
+. . .
+
+::: {.callout-tip}
+## Analogia
+*Tool* é um **verbo** (o modelo age); *resource* é um **substantivo** (um dado que você
+anexa ao contexto). Ex.: o resource `series://ipca/metadados` descreve a série; a tool
+`get_series` vai buscar os números.
+:::
+
+## Prompts — fluxos prontos para o usuário
+
+- **Prompts** são **modelos de instrução** parametrizados e reutilizáveis
+- Disparados pelo **usuário** (ex.: um menu de comandos no host)
+- Padronizam tarefas recorrentes com qualidade consistente
+
+. . .
+
+> Prompt `resumo_macro(periodo)` → monta um pedido pronto: "Resuma o cenário
+> macro do período informado usando as séries disponíveis, em até 200 palavras."
+
+## Quem controla o quê {.smaller}
+
+| Primitiva | Controlada por | Para quê | Exemplo (finanças) |
+|---|---|---|---|
+| **Tool** | Modelo | Executar ações | `get_series`, `calcular_vpl` |
+| **Resource** | Aplicação | Fornecer dados/contexto | `series://ipca/metadados` |
+| **Prompt** | Usuário | Fluxos prontos | `resumo_macro(periodo)` |
+
+::: {.callout-note}
+Separar os papéis é o que torna o MCP **seguro e previsível**: o modelo só age via tools;
+dados e fluxos entram de forma controlada.
+:::
+
+# 🚇 Transporte e conexão {background-color="#1c2d4f"}
+
+## Como cliente e servidor se falam
+
+:::: {.columns}
+::: {.column width="58%"}
+- **stdio** — servidor roda **localmente**, comunicação via entrada/saída padrão
+  - Ideal para ferramentas na sua máquina (arquivos, scripts locais)
+- **HTTP (streamable)** — servidor **remoto**, acessível pela rede
+  - Ideal para serviços compartilhados por uma equipe
+
+. . .
+
+Em ambos os casos as mensagens são **JSON-RPC** — muda só o "cano" por onde passam.
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+## O Inspector: testando sem o Claude
+
+- O **MCP Inspector** é uma ferramenta para **inspecionar e testar** seu servidor
+- Lista tools, resources e prompts e deixa você **chamá-los manualmente**
+- Confirma o que o servidor expõe **antes** de plugar num cliente
+
+. . .
+
+::: {.callout-tip}
+Fluxo recomendado: escreva o servidor → abra no **Inspector** → valide cada tool →
+só então conecte ao Claude. Depurar isolado economiza tempo.
+:::
+
+# 🛠️ Construindo um servidor MCP {background-color="#1c2d4f"}
+
+## Setup do projeto (Python)
+
+- O curso usa o **SDK oficial de Python** para MCP
+- Estrutura mínima: um arquivo de servidor + dependências
+- O objeto `FastMCP` registra tools, resources e prompts via **decoradores**
+
+. . .
+
+```python
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("servidor-macro")
+
+if __name__ == "__main__":
+    mcp.run()   # transporte stdio por padrão
+```
+
+## Definindo uma tool
+
+- Uma função Python vira tool com o decorador `@mcp.tool()`
+- A **assinatura** (tipos) e a **docstring** viram o esquema que o modelo lê
+- Boas descrições = o modelo escolhe e usa a tool corretamente
+
+. . .
+
+```python
+@mcp.tool()
+def get_series(codigo: int, ultimos: int = 12) -> list[dict]:
+    """Retorna as últimas observações de uma série do BCB (código SGS)."""
+    dados = consultar_bcb(codigo, ultimos)   # sua lógica/HTTP aqui
+    return dados
+```
+
+## Definindo resources e prompts
+
+```python
+@mcp.resource("series://ipca/metadados")
+def ipca_meta() -> str:
+    """Metadados da série de IPCA: código, unidade, fonte."""
+    return "IPCA — código SGS 433, % a.m., fonte: BCB"
+
+@mcp.prompt()
+def resumo_macro(periodo: str) -> str:
+    """Fluxo pronto: pede um resumo macro do período informado."""
+    return f"Resuma o cenário macro de {periodo} usando as séries disponíveis, " \
+           f"em até 200 palavras, citando apenas números retornados pelas tools."
+```
+
+::: {.callout-note}
+O mesmo servidor expõe as **três primitivas**. O cliente as descobre no handshake e o
+Claude passa a poder usá-las.
+:::
+
+## Como o Claude usa o servidor
+
+- O usuário declara o servidor no **host** (ex.: config do Claude Desktop / Claude Code)
+- No handshake, o Claude **descobre** as tools, resources e prompts
+- Durante a conversa, o modelo **decide** chamar `get_series` quando faz sentido
+- O resultado volta ao modelo, que o **interpreta** e responde
+
+. . .
+
+> "Qual foi o IPCA acumulado dos últimos 12 meses?" → o Claude chama `get_series(433, 12)`,
+> soma e responde — sem você colar dado nenhum.
+
+# 🔒 Segurança e confiança {background-color="#1c2d4f"}
+
+## Conecte apenas servidores em que confia
+
+- Um servidor MCP pode **ler dados e executar ações** no seu ambiente
+- Instale só servidores de **origem conhecida**; leia o que cada tool faz
+- Prefira **menor privilégio**: exponha só o necessário (ex.: leitura, não escrita)
+
+. . .
+
+::: {.callout-tip}
+## Analogia para finanças
+É como dar acesso a um sistema interno: você concede a **credencial mínima** e audita o
+que foi acessado. Um servidor MCP merece o mesmo cuidado.
+:::
+
+## Boas práticas
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Valide entradas** das tools (não confie cegamente nos parâmetros)
+- **Confirmação humana** para ações sensíveis (gravar, enviar, apagar)
+- **Segredos** (chaves de API) ficam no servidor, **fora** do prompt
+- Para economistas: regra de ouro — **nunca inventar número**; a tool é a fonte
+
+. . .
+
+Capacidade conectada é poder; trate-a com o mesmo rigor de um acesso a produção.
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- O **MCP** é um **padrão aberto** que troca N×M integrações por **N+M**
+- Arquitetura **host → client → server**, falando **JSON-RPC**
+- Três primitivas: **tools** (modelo age), **resources** (dados), **prompts** (fluxos)
+- Transportes: **stdio** (local) e **HTTP** (remoto); teste com o **Inspector**
+- Construir um servidor em **Python** é registrar funções com decoradores
+- Conecte só **servidores confiáveis** e aplique o **menor privilégio**
+
+## Próximos passos
+
+- Escrever um servidor MCP simples que exponha uma **API de séries/cotações**
+- Validar no **Inspector** e conectar ao **Claude Desktop / Claude Code**
+- Evoluir para um caso real da sua rotina (séries, carteira, relatórios)
+- Aprofundar com o curso **MCP: Advanced Topics** da Anthropic Academy
+
+. . .
+
+**Obrigado!** — Análise Macro

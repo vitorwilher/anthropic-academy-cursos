@@ -1,0 +1,269 @@
+---
+title: "Introdução às Agent Skills"
+subtitle: "Instruções reutilizáveis que o Claude aplica na hora certa"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🧩 O que são Skills {background-color="#1c2d4f"}
+
+## Pare de se repetir, ensine uma vez
+
+:::: {.columns}
+::: {.column width="58%"}
+- Uma **Skill** empacota **instruções + recursos** para uma tarefa recorrente
+- Vive numa pasta com um arquivo **`SKILL.md`**
+- O Claude **aciona a skill certa sozinho**, conforme o seu pedido
+- Em vez de colar a mesma instrução toda conversa, você **ensina uma vez**
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia para a mesa
+Pense numa skill como o **manual de procedimento da casa**: "como fazemos um parecer de
+balanço aqui". Quem chega aplica do mesmo jeito — sem você reexplicar a cada vez.
+:::
+
+## Prompt avulso x Skill
+
+- **Prompt avulso:** vale só naquela conversa; some quando você fecha a janela
+- **Skill:** fica guardada e **reaparece automaticamente** quando o assunto volta
+- Padroniza a qualidade: a mesma tarefa sai sempre no mesmo formato
+
+. . .
+
+::: {.callout-note}
+## Onde isso entra
+No **Claude 101** vimos Skills de relance, ao lado de Projects e Artifacts. Aqui abrimos a
+"caixa-preta": **o que** é o arquivo, **como** o Claude escolhe e **como** se distribui.
+:::
+
+# 📝 Criando a primeira skill {background-color="#1c2d4f"}
+
+## Anatomia do `SKILL.md`
+
+Uma skill mínima é **uma pasta + um arquivo**. O arquivo tem duas partes: o **frontmatter
+YAML** (entre `---`) e o **corpo** em Markdown.
+
+```markdown
+---
+name: analise-de-balanco
+description: Use para analisar um balanço ou DRE de empresa. Calcula
+  margens, ROE e alavancagem e devolve um parecer no padrão da mesa.
+---
+
+# Análise de balanço
+
+Quando o usuário enviar uma DRE ou balanço:
+
+1. Calcule margem bruta, margem líquida, ROE e dívida líquida/EBITDA.
+2. Compare com o setor, se houver dados.
+3. Escreva um parecer de até 200 palavras: pontos fortes, riscos e veredito.
+4. Nunca invente número: só use valores presentes no documento enviado.
+```
+
+## Os dois campos que fazem tudo funcionar
+
+- **`name`** — minúsculas, hífens, até 64 caracteres; sem "claude"/"anthropic"
+- **`description`** — o campo mais importante: descreve **quando** usar a skill (até 1024 caracteres)
+
+. . .
+
+::: {.callout-tip}
+## A descrição é o gatilho
+É lendo a `description` que o Claude decide acionar a skill. Vaga demais → não dispara.
+Trate-a como um bom prompt: específica e orientada ao **momento de uso**.
+:::
+
+## Auto-invocação: o Claude escolhe a hora
+
+:::: {.columns}
+::: {.column width="58%"}
+- O Claude lê **só os metadados** (`name` + `description`) de todas as skills
+- Ao receber um pedido, compara com as descrições e **ativa a que combina**
+- Você não precisa "chamar" a skill pelo nome — basta pedir a tarefa
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+. . .
+
+> "Anexei o balanço da empresa X. Faça a análise." → o Claude reconhece e aplica a skill
+> *analise-de-balanco* automaticamente.
+
+# 📂 Configuração e múltiplos arquivos {background-color="#1c2d4f"}
+
+## Progressive disclosure: carregar só o necessário
+
+A skill pode crescer sem estourar o contexto, porque o Claude carrega em **três camadas**:
+
+1. **Metadados** (`name` + `description`, ~100 tokens) — sempre carregados
+2. **Corpo do `SKILL.md`** — carregado **quando a skill é ativada**
+3. **Recursos** (`scripts/`, `references/`, `assets/`) — só **quando forem necessários**
+
+. . .
+
+::: {.callout-note}
+## Por que isso importa
+O Claude não "lê o manual inteiro" o tempo todo. Ele abre a página certa na hora certa —
+mantendo a janela de contexto enxuta mesmo com skills grandes.
+:::
+
+## A pasta de uma skill maior
+
+:::: {.columns}
+::: {.column width="58%"}
+```text
+analise-de-balanco/
+├── SKILL.md            # instruções + frontmatter
+├── references/
+│   └── metodologia.md  # detalhe lido sob demanda
+└── scripts/
+    └── indicadores.py  # roda sem gastar contexto
+```
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+- **`references/`** guarda o detalhe longo (metodologia, glossário)
+- **`scripts/`** executa cálculos sem o Claude "ler" o código todo
+
+## Restringindo ferramentas
+
+- O frontmatter aceita **`allowed-tools`**: a skill só usa as ferramentas listadas
+- Útil para skills que só leem/escrevem texto e **não** deveriam, por ex., rodar comandos
+
+. . .
+
+```markdown
+---
+name: parecer-risco
+description: Redige uma nota de risco a partir de um relatório de exposições.
+allowed-tools: Read, Write
+---
+```
+
+# ⚖️ Skill x outros recursos {background-color="#1c2d4f"}
+
+## Quando usar o quê
+
+| Recurso | Quando atua | Bom para |
+|---|---|---|
+| **Skill** | Acionada por relevância do pedido | Tarefa recorrente, em certos momentos |
+| **CLAUDE.md** | Sempre presente no projeto | Contexto fixo da casa/projeto |
+| **Hook** | Disparado por evento (determinístico) | Automação que sempre roda |
+| **Subagent** | Delegação com contexto próprio | Tarefa isolada e paralela |
+
+## A regra prática
+
+- **Skill** = "liga quando o assunto aparece" (parecer de balanço, nota de risco)
+- **`CLAUDE.md`** = "sempre ligado" (convenções do repositório, idioma, estilo)
+- **Hook** = "toda vez que o evento X ocorre, faça Y"
+
+. . .
+
+::: {.callout-tip}
+Se a instrução só faz sentido **às vezes**, é uma skill. Se vale **sempre** naquele
+projeto, é `CLAUDE.md`. Não duplique a mesma regra nos dois.
+:::
+
+# 🤝 Compartilhando skills {background-color="#1c2d4f"}
+
+## Do seu computador para o time inteiro
+
+:::: {.columns}
+::: {.column width="58%"}
+Como uma skill é só **uma pasta de arquivos**, distribuir é dar acesso a esses arquivos:
+
+- **Time:** commitar a pasta da skill no **repositório** (versionada no Git)
+- **Comunidade/ampla:** empacotar como **plugin**
+- **Organização:** implantar via **managed settings** (enterprise)
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+. . .
+
+> Coloque a skill em `.claude/skills/` do projeto, faça commit, e toda a equipe passa a
+> gerar o parecer de balanço **no mesmo padrão**.
+
+## Por que versionar uma skill
+
+- A skill evolui como código: histórico, *pull requests*, revisão
+- Uma mudança na metodologia vira **uma alteração no `SKILL.md`** — e propaga para todos
+- Padroniza a entrega da mesa sem depender da memória de cada pessoa
+
+# 🔧 Depurando skills {background-color="#1c2d4f"}
+
+## Minha skill não disparou
+
+:::: {.columns}
+::: {.column width="58%"}
+Quase sempre o problema é a **`description`**. Checklist:
+
+- A descrição diz **quando** usar (não só o que faz)?
+- Está específica (cita o tipo de pedido/documento)?
+- O corpo está enxuto (detalhe foi para `references/`)?
+- Você testou com **pedidos reais** da rotina?
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+## Antes → Depois da descrição
+
+::: {.callout-note}
+## Itere na descrição como num prompt
+**Fraca:** `description: Ajuda com finanças.`
+
+**Forte:** `description: Use quando o usuário enviar um balanço ou DRE e pedir análise.
+Calcula margens, ROE e alavancagem e devolve um parecer no padrão da mesa.`
+:::
+
+- Descrição forte = casamento confiável + skill certa na hora certa
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Skill = **instruções + recursos** numa pasta com `SKILL.md`; você **ensina uma vez**
+- A **`description`** é o gatilho da **auto-invocação** — específica e orientada ao uso
+- **Progressive disclosure** carrega só o necessário: metadados → corpo → recursos
+- **Skill x CLAUDE.md x hook x subagent:** skill liga **quando o assunto aparece**
+- Distribuir é compartilhar arquivos: **repo → plugin → organização**
+
+## Próximos passos
+
+- Escrever uma skill da sua rotina (ex.: *parecer de balanço* ou *nota de risco*)
+- Mover o detalhe longo para `references/` e os cálculos para `scripts/`
+- Commitar em `.claude/skills/` e padronizar a entrega do time
+
+. . .
+
+**Obrigado!** — Análise Macro

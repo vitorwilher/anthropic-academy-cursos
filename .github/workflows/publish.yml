@@ -29,7 +29,20 @@ jobs:
 
       - name: Renderizar os decks
         run: |
-          for d in slides/claude-101 slides/claude-code-101 slides/claude-platform-101 projetos/sentimento-copom; do
+          for d in \
+            slides/claude-101 \
+            slides/claude-code-101 \
+            slides/claude-platform-101 \
+            slides/introduction-to-mcp \
+            slides/mcp-advanced-topics \
+            slides/building-with-claude-api \
+            slides/agent-skills \
+            slides/subagents \
+            slides/ai-fluency \
+            slides/claude-cowork \
+            slides/claude-code-in-action \
+            slides/ai-capabilities-and-limitations \
+            projetos/sentimento-copom; do
             echo "::group::Render $d"
             quarto render "$d/slides.qmd"
             echo "::endgroup::"

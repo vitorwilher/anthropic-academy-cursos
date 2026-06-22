@@ -1,0 +1,307 @@
+---
+title: "Capacidades e Limitações da IA"
+subtitle: "O que o Claude faz bem, onde erra, e como usar com responsabilidade"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🧭 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- Um **modelo mental** de como a IA generativa se comporta — e por quê
+- As **quatro propriedades** de um modelo: previsão do próximo token, conhecimento, memória de trabalho e dirigibilidade
+- Onde cada propriedade é **capacidade** e onde vira **limitação**
+- Como **diagnosticar** uma saída inesperada e aplicar a correção certa
+- Hábitos de **uso responsável** em economia e finanças
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "AI Capabilities and Limitations" da Anthropic Academy,
+companheiro do 4D Framework, com exemplos voltados ao público da Análise Macro.
+:::
+
+## A ideia central
+
+- Toda **capacidade** da IA tem um **lado-B** que é limitação
+- Não são bugs: são consequências de **como o modelo funciona**
+- A mesma propriedade que escreve um texto fluente também **inventa um número com confiança**
+
+. . .
+
+::: {.callout-tip}
+## O par com o 4D Framework
+Onde o 4D ensina as **competências humanas** (Delegar, Descrever, Discernir, ser
+Diligente), este curso ensina as **propriedades da máquina** às quais essas
+competências respondem.
+:::
+
+# 🤖 O que é (e o que não é) IA {background-color="#1c2d4f"}
+
+## O que entendemos por "IA" aqui
+
+:::: {.columns}
+::: {.column width="58%"}
+- Falamos de **IA generativa** — grandes modelos de linguagem (LLMs)
+- O modelo **gera** texto plausível; não é busca, banco de dados nem calculadora
+- Treinado em enorme volume de texto para **continuar** o que você escreve
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+. . .
+
+| Uma planilha / banco | Um LLM (Claude) |
+|---|---|
+| Resultado **determinístico** | Resultado **probabilístico** |
+| Devolve o que foi gravado | **Gera** uma resposta nova |
+| Erra "fora da regra" | Pode errar com **fluência** |
+
+## De onde vem o "jeitão" do Claude
+
+- **Pré-treino** — aprender a prever texto a partir de muitos dados → capacidade bruta
+- **Pós-treino / alinhamento** — RLHF e *Constitutional AI* moldam o comportamento
+- O resultado é um assistente treinado para ser **útil, honesto e inofensivo**
+
+. . .
+
+::: {.callout-note}
+Por isso o modelo às vezes "puxa para o seguro" ou recusa um pedido: o **alinhamento**
+dá o tom e os limites, por cima da capacidade que veio do pré-treino.
+:::
+
+# 🔮 Propriedade 1 — Previsão do próximo token {background-color="#1c2d4f"}
+
+## O modelo prevê a próxima palavra
+
+:::: {.columns}
+::: {.column width="58%"}
+- O coração do modelo: estimar o **próximo token mais provável**, repetidamente
+- É isso que o torna **fluente** — e isso é uma capacidade poderosa
+- Mas **fluência ≠ veracidade**: soar certo não é estar certo
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+. . .
+
+::: {.callout-tip}
+## Capacidade
+Rascunhar, reformular, traduzir, resumir, sugerir estruturas — tudo o que se beneficia
+de "qual é a continuação natural?".
+:::
+
+## O lado-B: alucinação confiante
+
+- Como o objetivo é **plausibilidade**, o modelo pode **inventar** o que falta
+- Ele preenche lacunas com algo que *parece* correto — citações, números, fontes
+- O tom seguro **esconde** a incerteza
+
+. . .
+
+::: {.callout-warning}
+## Em um relatório macro, isso é perigoso
+Peça "a projeção do PIB no último Focus" sem anexar o boletim e o modelo pode
+**devolver um número convincente — e errado**. Em economia, um número inventado
+destrói a credibilidade. **Regra de ouro: nunca aceite um número sem fonte.**
+:::
+
+# 📚 Propriedade 2 — Conhecimento {background-color="#1c2d4f"}
+
+## O que o modelo sabe — e até quando
+
+:::: {.columns}
+::: {.column width="58%"}
+- O conhecimento fica **"congelado"** nos dados de treino
+- Existe uma **data de corte** (*knowledge cutoff*): eventos depois dela, ele não viu
+- Não conhece seus **dados internos** nem o número que saiu **hoje**
+- Os dados de treino carregam **vieses** do mundo real
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+. . .
+
+::: {.callout-tip}
+## Capacidade
+Ampla cultura geral, definições, padrões e contexto histórico bem estabelecidos —
+um excelente ponto de partida.
+:::
+
+## Mitigação: dê o contexto
+
+- O modelo é ótimo **raciocinando sobre o que você fornece**
+- **Anexe** o documento (PDF, CSV, ata) em vez de confiar na memória dele
+- Use **busca / ferramentas / RAG** para trazer dados recentes ou privados
+
+. . .
+
+::: {.callout-note}
+## Antes → Depois
+**Frágil:** "Qual foi a mediana do IPCA no Focus desta semana?"
+
+**Ancorado:** "Anexei o boletim Focus de hoje (PDF). Extraia a mediana do IPCA para 2026
+**exatamente como está no texto** e cite a linha de onde tirou."
+:::
+
+# 🧠 Propriedade 3 — Memória de trabalho {background-color="#1c2d4f"}
+
+## A janela de contexto
+
+:::: {.columns}
+::: {.column width="58%"}
+- A **janela de contexto** é a memória de trabalho: tudo que está na conversa atual
+- O modelo só "enxerga" o que está ali — e o espaço é **finito**
+- Em conversas longas, o **começo pode se perder** (*lost in the middle*)
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+. . .
+
+::: {.callout-tip}
+## Capacidade
+Colar um documento longo e pedir análise, comparação ou síntese — enquanto couber na
+janela, ele raciocina sobre tudo de uma vez.
+:::
+
+## Higiene de contexto
+
+- **Seja conciso**: cada pedaço irrelevante disputa espaço com o que importa
+- **Reafirme o objetivo** quando a conversa esticar
+- **Recomece** ("limpe a mesa") ao mudar de assunto — evita misturar tarefas
+
+. . .
+
+::: {.callout-warning}
+Numa conversa enorme analisando várias atas do COPOM, o modelo pode esquecer a
+**instrução de formato** dada lá no início. Se a saída "fugiu do combinado",
+o problema costuma ser **memória de trabalho**, não má vontade.
+:::
+
+# 🎛️ Propriedade 4 — Dirigibilidade {background-color="#1c2d4f"}
+
+## Você está no volante
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Dirigibilidade** (*steerability*): o quanto o comportamento muda com o seu prompt
+- Alavancas: **instruções**, **papel/persona**, **formato** e **exemplos** (*few-shot*)
+- Mudar o fraseado muda o resultado — para melhor ou para pior
+:::
+::: {.column width="42%"}
+![](../assets/illus-linechart.svg)
+:::
+::::
+
+. . .
+
+::: {.callout-note}
+## Antes → Depois
+**Vago:** "Analise essa série."
+
+**Dirigido:** "Você é um economista. Anexei o IPCA mensal (2010–2025). Calcule a média
+móvel de 12 meses, aponte os 3 maiores picos e explique cada um. Responda em tabela +
+síntese."
+:::
+
+## O lado-B: pode ser dirigido para o lado errado
+
+- Instruções **ambíguas** levam a saídas inconsistentes
+- O modelo segue o que está no contexto — inclusive texto **malicioso** (*prompt injection*)
+- Ele é obediente: dirigir mal é tão fácil quanto dirigir bem
+
+. . .
+
+::: {.callout-warning}
+Ao colar texto de uma fonte externa, lembre que instruções escondidas ali podem
+**desviar** o modelo. Trate conteúdo de terceiros como **dado**, não como ordem.
+:::
+
+# 🧩 Quando as propriedades colidem {background-color="#1c2d4f"}
+
+## Saídas inesperadas são cruzamentos
+
+- Uma falha real raramente é "uma" propriedade isolada — é a **interação** delas
+- O truque é **diagnosticar**: qual propriedade explica o que você viu?
+- Identificada a propriedade, a **correção** quase se escolhe sozinha
+
+. . .
+
+::: {.callout-tip}
+Exemplo de colisão: **previsão fluente + corte de conhecimento** = uma alucinação que
+*soa* perfeita. Ou **janela cheia + dirigibilidade** = ele ignora a regra do início.
+:::
+
+## Tabela de diagnóstico {.smaller}
+
+| Sintoma | Propriedade em jogo | Correção |
+|---|---|---|
+| Número/citação inventado com confiança | Previsão do próximo token | Pedir fonte; anexar o dado; verificar |
+| Resposta desatualizada ou genérica | Conhecimento (cutoff/viés) | Fornecer contexto; busca/RAG |
+| "Esqueceu" a instrução do início | Memória de trabalho | Reafirmar objetivo; resumir; recomeçar |
+| Resultado vago ou fora do formato | Dirigibilidade | Prompt claro: papel + tarefa + formato + exemplo |
+| Desviou por texto colado | Dirigibilidade (injeção) | Tratar fonte externa como dado, não ordem |
+
+## O hábito que amarra tudo
+
+- **Capacidade e limitação são a mesma propriedade** vista de dois ângulos
+- Não pergunte "a IA é confiável?", pergunte **"para esta tarefa, onde no continuum ela cai?"**
+- Quanto mais **verificável** e **fornecido** o material, mais você se apoia na capacidade
+
+. . .
+
+::: {.callout-note}
+Em economia e finanças, a postura é sempre **human in the loop**: o Claude rascunha
+e acelera; **você revisa e responde** pelo número publicado.
+:::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- A IA é **probabilística**: gera texto plausível, não verdade garantida
+- **Quatro propriedades**: próximo token, conhecimento, memória de trabalho, dirigibilidade
+- Cada uma é **capacidade e limitação** ao mesmo tempo
+- Diante de uma saída estranha, **diagnostique a propriedade** e aplique a correção
+- **Nunca invente número**: forneça a fonte e verifique
+
+## Próximos passos
+
+- Rodar os exercícios "Try it out" de cada propriedade no claude.ai
+- Fazer o par com o **4D Framework** (Delegar, Descrever, Discernir, Diligência)
+- Levar os hábitos de verificação para um entregável real da sua rotina
+
+. . .
+
+**Obrigado!** — Análise Macro

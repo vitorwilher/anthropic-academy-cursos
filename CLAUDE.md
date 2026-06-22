@@ -49,6 +49,20 @@ quarto preview slides/claude-code-101/slides.qmd    # com hot-reload
 
 ## Status dos cursos
 
+Trilha 101:
+
 - Claude 101 — ✅ slides prontos
 - Claude Code 101 — ✅ slides prontos
 - Claude Platform 101 — ✅ slides prontos
+
+Demais cursos do catálogo (slug em `cursos/` e `slides/`):
+
+- Introdução ao MCP (`introduction-to-mcp`) — ✅ slides prontos
+- MCP: Tópicos Avançados (`mcp-advanced-topics`) — ✅ slides prontos
+- Construindo com a Claude API (`building-with-claude-api`) — ✅ slides prontos
+- Introdução às Agent Skills (`agent-skills`) — ✅ slides prontos
+- Introdução aos Subagents (`subagents`) — ✅ slides prontos
+- AI Fluency: Frameworks e Fundamentos (`ai-fluency`) — ✅ slides prontos
+- Introdução ao Claude Cowork (`claude-cowork`) — ✅ slides prontos
+- Claude Code na Prática (`claude-code-in-action`) — ✅ slides prontos
+- Capacidades e Limitações da IA (`ai-capabilities-and-limitations`) — ✅ slides prontos

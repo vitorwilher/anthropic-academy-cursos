@@ -1,0 +1,373 @@
+---
+title: "Claude Code na Prática"
+subtitle: "Fluxos de trabalho operacionais para tirar o máximo do Claude Code"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- Recapitular o que é o Claude Code e ir **além do básico**
+- Dominar o **contexto**: `/init`, `CLAUDE.md`, `@` menções, Plan e Thinking Mode
+- Dirigir mudanças reais no ciclo **explore → plan → code → commit**
+- Criar **comandos customizados** (`/comando`)
+- Estender com **MCP** e **integração com GitHub**
+- Automatizar com **hooks** e rodar **headless** com o **SDK**
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: notes
+Baseado no curso "Claude Code in Action" da Anthropic Academy. É o sequel operacional do
+Claude Code 101 — não repetir a instalação em detalhe, e sim aprofundar os fluxos de
+trabalho. Exemplos com sabor de economia/finanças (pipelines de dados, projeto Focus
+apenas como pano de fundo).
+:::
+
+# 🤖 Recapitulando, com profundidade {background-color="#1c2d4f"}
+
+## De assistente de código a agente
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Autocomplete** sugere a próxima linha; você ainda dirige tudo
+- O **Claude Code** é um **agente**: lê o repo, edita arquivos, roda comandos e testes
+- Opera num **loop**: pensa → usa uma ferramenta → observa o resultado → repete
+- Você descreve o **objetivo**; ele descobre os passos
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Por que isso importa
+Num pipeline de dados, o ganho não é "escrever uma função mais rápido" — é o agente
+**rodar o script, ler o erro e corrigir sozinho**, fechando o loop sem você no meio.
+:::
+
+## Uma tarefa real, ponta a ponta
+
+- O fluxo típico: você dá o objetivo, ele **explora** o código, propõe um **plano**,
+  **implementa** e mostra o **diff** para você revisar
+- Tudo no seu repositório local — ele entende o projeto inteiro
+
+. . .
+
+```text
+> O script src/coleta_pib.R está retornando NA nas últimas
+  linhas. Investigue a causa, proponha a correção e só depois
+  implemente. Não toque em outros arquivos.
+```
+
+::: {.callout-note}
+Repare no "**só depois implemente**": pedir para investigar antes de editar é o hábito
+que separa o uso casual do uso profissional.
+:::
+
+# 🧠 Dominando o contexto {background-color="#1c2d4f"}
+
+## `/init`: a fundação do projeto
+
+- `/init` faz o Claude **varrer o repositório** e escrever um `CLAUDE.md` inicial
+- Ponto de partida — você **revisa e edita** o que ele gerou
+- O `CLAUDE.md` é lido **automaticamente** em toda sessão (a memória do projeto)
+
+. . .
+
+```markdown
+# CLAUDE.md
+- Projeto em Python; coleta e trata séries do BCB/IBGE.
+- Rodar: `python demo.py`. Testes: `pytest -m "not network"`.
+- Convenção: arquivos focus_AAAA-MM-DD; data/ guarda PDFs e textos.
+- Regra de ouro: NUNCA inventar número.
+```
+
+## `@` menções e hotkeys
+
+- **`@`** aponta um arquivo ou pasta direto no prompt — contexto preciso, sem "leia tudo"
+- Hotkeys do dia a dia agilizam a navegação e o controle da sessão
+- `/clear` zera o contexto; `/compact` resume e segue; **Esc** interrompe o agente
+
+. . .
+
+```text
+> Compare @src/baixar_focus.py com @src/extrair_texto.py e
+  liste as funções que poderiam ir para um módulo utils.py.
+```
+
+::: {.callout-note}
+Mencionar arquivos com `@` gasta **menos contexto** e dá respostas mais certeiras do que
+deixar o agente procurar pelo projeto inteiro.
+:::
+
+## Plan Mode e Thinking Mode
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Plan Mode** (Shift+Tab): o agente **só planeja**, não edita nada — ideal para revisar
+  a abordagem antes de soltar a mão
+- **Thinking Mode**: pedir "**think**" / "**think hard**" dá mais raciocínio em problemas
+  difíceis (lógica complexa, refatorações arriscadas)
+- Use Plan para **enquadrar**, Thinking para **aprofundar**
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+::: {.callout-tip}
+Antes de uma mudança que mexe em várias etapas do pipeline, entre em **Plan Mode**: você
+lê o plano, ajusta, e só então autoriza a implementação. Menos retrabalho.
+:::
+
+# 🔁 Fazendo mudanças de verdade {background-color="#1c2d4f"}
+
+## O loop agêntico na prática
+
+1. **Explore** — "entenda como `X` funciona antes de mexer"
+2. **Plan** — peça o plano (Plan Mode) e **revise**
+3. **Code** — ele implementa em passos verificáveis
+4. **Commit** — você confere o **diff** e aprova
+
+. . .
+
+::: {.callout-note}
+A cada ferramenta sensível (editar arquivo, rodar shell), o agente **pede permissão**.
+Você aprova, rejeita ou ajusta o pedido — é você quem mantém o controle.
+:::
+
+## Permissões e guard-rails
+
+- Modos de permissão controlam o quanto o agente age sem perguntar
+- Aprovar caso a caso é seguro; liberar tudo é rápido mas arriscado
+- Regra prática: **mais liberdade em sandbox, mais cautela em produção**
+
+. . .
+
+::: {.callout-tip}
+## Analogia para a mesa
+É como dar acesso a um estagiário: leitura ampla, mas **escrita** em arquivos críticos
+(credenciais, dados de produção) só com sua assinatura.
+:::
+
+# ⚙️ Comandos customizados {background-color="#1c2d4f"}
+
+## Empacotando prompts recorrentes
+
+- Um **comando customizado** é um arquivo Markdown em `.claude/commands/`
+- O nome do arquivo vira o comando: `revisar.md` → **`/revisar`**
+- `$ARGUMENTS` injeta o que você digitar depois do comando
+- Escopo **do projeto** (compartilhado no repo) ou **do usuário** (`~/.claude/commands/`)
+
+. . .
+
+```markdown
+<!-- .claude/commands/sanity-check.md -->
+Rode o pipeline em $ARGUMENTS e confira: nenhuma série com NA
+nas últimas 12 observações, datas em ordem e valores plausíveis.
+Liste qualquer anomalia em tabela. Nunca invente número.
+```
+
+## Usando o comando
+
+- Vira parte do fluxo da equipe — todos rodam a **mesma** verificação, do mesmo jeito
+- Padroniza qualidade, igual às *skills*, mas acionado **explicitamente** por você
+
+. . .
+
+```text
+> /sanity-check data/focus_2026-06-15.txt
+```
+
+::: {.callout-note}
+Comando customizado é "prompt salvo com nome". Ótimo para revisões, geração de relatórios
+e checagens que você repete toda semana.
+:::
+
+# 🔌 Estendendo: MCP e GitHub {background-color="#1c2d4f"}
+
+## MCP dentro do Claude Code
+
+:::: {.columns}
+::: {.column width="58%"}
+- **MCP** (*Model Context Protocol*) conecta o agente a ferramentas e dados externos
+- No Claude Code: `claude mcp add ...`; `/mcp` lista os servidores ativos
+- Escopos: **local**, **project** (`.mcp.json` no repo) ou **user**
+- Abre o agente para bancos, APIs, GitHub, sistemas internos
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: {.callout-tip}
+Exemplo na mesa: um servidor MCP de **banco de dados** deixa o Claude Code consultar a
+base de cotações e gerar o script de tratamento já validado contra os dados reais.
+:::
+
+## Integração com GitHub
+
+- Conecte o GitHub (via `gh` e/ou servidor MCP) e trabalhe com **issues e PRs** sem sair
+  do agente
+- Abrir PR, **revisar diffs**, comentar, responder a uma issue
+- No CI, `@claude` em um GitHub Action pode reagir a issues/PRs automaticamente
+
+. . .
+
+```text
+> Abra um PR com as mudanças atuais. Título e descrição em
+  pt-BR resumindo o que mudou no coletor de PIB e por quê.
+```
+
+# 🪝 Hooks: automação determinística {background-color="#1c2d4f"}
+
+## O que são hooks
+
+- **Hooks** são comandos de shell que o Claude Code dispara em **eventos** do ciclo de vida
+- Diferença-chave: o hook **sempre roda** — não depende de o modelo "lembrar" de fazer
+- Para tudo que precisa ser **garantido**: formatar, testar, registrar, bloquear
+
+. . .
+
+::: {.callout-tip}
+Regra mental: se a tarefa **não pode falhar** (rodar o linter, proteger um arquivo),
+não peça ao modelo — coloque num **hook**. Determinismo no lugar de boa vontade.
+:::
+
+## Anatomia de um hook {.smaller}
+
+- Configurados em `.claude/settings.json`, por **evento** + **matcher** + **command**
+- Principais eventos:
+
+| Evento | Quando dispara |
+|---|---|
+| `PreToolUse` | antes de uma ferramenta (pode **bloquear**) |
+| `PostToolUse` | depois de uma ferramenta (ex.: formatar/testar) |
+| `UserPromptSubmit` | ao enviar um prompt |
+| `Stop` | quando o agente termina a resposta |
+| `SessionStart` | ao iniciar a sessão |
+
+## Implementando: formatar após editar
+
+```json
+// .claude/settings.json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Edit|Write",
+      "hooks": [{
+        "type": "command",
+        "command": "ruff format $CLAUDE_FILE_PATHS 2>/dev/null || true"
+      }]
+    }]
+  }
+}
+```
+
+::: {.callout-note}
+Sempre que o agente editar um `.py`, o **ruff** formata na hora. Você nunca mais comenta
+"ajuste a indentação".
+:::
+
+## Hooks úteis (e armadilhas) {.smaller}
+
+:::: {.columns}
+::: {.column width="56%"}
+**Úteis na mesa de dados:**
+
+- `PostToolUse` em `src/` → rodar `pytest -m "not network"`
+- `PreToolUse` → **bloquear** escrita em `.env` / segredos
+- `Stop` → notificar quando uma tarefa longa terminar
+:::
+::: {.column width="44%"}
+**Armadilhas:**
+
+- Hooks rodam com **suas** permissões — cuidado com o que executam
+- `PreToolUse` com exit code **2 bloqueia** a ação
+- Hook lento atrasa toda sessão; mantenha rápido
+:::
+::::
+
+::: {.callout-tip}
+O hook que bloqueia escrita em `.env` é o irmão técnico do "**nunca inventar número**":
+um guard-rail que protege o que não pode dar errado — aqui, **credenciais**.
+:::
+
+# 🚀 Headless e o SDK {background-color="#1c2d4f"}
+
+## Rodando o Claude Code sem interação
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Print mode** (`claude -p`) roda um prompt e **devolve a saída** — sem chat interativo
+- Saída estruturada com `--output-format json` para scripts encadearem
+- O **Claude Code SDK** (Python/TS) leva isso para dentro das suas aplicações
+- Caminho natural para **CI/CD** e automações
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+```bash
+claude -p "Resuma o diff desta branch em 5 bullets" \
+  --output-format json
+```
+
+## No pipeline e na nuvem
+
+- Headless é o que permite o agente rodar **dentro de um GitHub Action**, sem ninguém olhando
+- É a ponte para automações como o **Boletim Focus**, que roda sozinho toda segunda
+- Combine com **hooks** (garantias locais) + **CI** (execução agendada)
+
+. . .
+
+::: {.callout-note}
+No 101 construímos o projeto na máquina; no **Platform 101** ele foi para a nuvem. O
+**SDK headless** é a peça que faz o agente trabalhar **sozinho** nesse meio do caminho.
+:::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Contexto é tudo: **`/init`, `CLAUDE.md`, `@` menções, Plan e Thinking Mode**
+- Dirija mudanças no ciclo **explore → plan → code → commit**, revisando o diff
+- Padronize com **comandos customizados** (`/comando`)
+- Estenda com **MCP** e a **integração com GitHub**
+- Garanta o que não pode falhar com **hooks**
+- Escale com o **SDK headless** (`claude -p`, CI)
+
+## Próximos passos
+
+- Rodar `/init` num projeto real e refinar o `CLAUDE.md`
+- Criar um comando customizado `/sanity-check` para o seu pipeline
+- Adicionar um hook de formatação e um de proteção de segredos
+- Conectar um servidor **MCP** (GitHub ou banco de dados)
+
+. . .
+
+**Obrigado!** — Análise Macro

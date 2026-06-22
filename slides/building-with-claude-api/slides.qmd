@@ -1,0 +1,448 @@
+---
+title: "Construindo com a Claude API"
+subtitle: "Da primeira chamada a aplicações reais com a API da Anthropic"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🎯 Apresentação {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- Sua **primeira chamada** à API do Claude (Messages API)
+- **System prompts**, conversas multi-turno e **streaming**
+- Controlar a saída e gerar **dados estruturados**
+- **Tool use**, **thinking**, **visão/PDF** e **prompt caching**
+- **MCP**, ideia de **RAG** e **workflows agênticos**
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "Building with the Claude API" da Anthropic Academy, com
+exemplos de economia e finanças para o público da Análise Macro. Código em Python com o
+SDK `anthropic`. Os fatos de modelo/preço/parâmetros vêm da referência oficial atual.
+:::
+
+## Da conversa para o código
+
+:::: {.columns}
+::: {.column width="58%"}
+- No **Claude 101** você conversou pelo `claude.ai`
+- Aqui você fala com o Claude **por código** — a **API**
+- Por quê? **Automação e escala**: rodar a mesma tarefa 1.000 vezes, integrar no seu fluxo
+- Tudo passa por **um endpoint**: a **Messages API**
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia
+Se o `claude.ai` é conversar com o assistente, a **API** é **contratá-lo como funcionário**:
+ele faz a tarefa sozinho, no horário e no formato que você programar.
+:::
+
+# 🔑 Primeira chamada {background-color="#1c2d4f"}
+
+## Chave de API e instalação
+
+- Crie a chave na **Claude Console** e guarde como variável de ambiente
+- **Nunca** escreva a chave no código (ela vaza no Git)
+
+. . .
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+pip install anthropic
+```
+
+::: {.callout-note}
+O SDK lê `ANTHROPIC_API_KEY` do ambiente automaticamente — por isso o cliente é
+instanciado sem argumentos.
+:::
+
+## Sua primeira requisição
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
+
+resp = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Explique a Selic em 2 frases."}
+    ],
+)
+
+print(resp.content[0].text)
+```
+
+. . .
+
+- `model`, `max_tokens` e `messages` são o mínimo
+- A resposta vem em **blocos de conteúdo** (`content`) — pegue o `.text`
+
+## Escolhendo o modelo {.smaller}
+
+| Modelo | ID | Quando usar |
+|---|---|---|
+| Opus 4.8 | `claude-opus-4-8` | mais capaz; raciocínio e tarefas difíceis |
+| Sonnet 4.6 | `claude-sonnet-4-6` | equilíbrio; alto volume em produção |
+| Haiku 4.5 | `claude-haiku-4-5` | rápido e barato; tarefas simples |
+
+. . .
+
+::: {.callout-tip}
+Comece no **Opus** para acertar a qualidade; migre para **Sonnet/Haiku** quando o volume
+crescer e o custo importar. Preços (por 1M tokens, entrada/saída): Opus **\$5/\$25**,
+Sonnet **\$3/\$15**, Haiku **\$1/\$5**.
+:::
+
+# 💬 System prompt, multi-turno e streaming {background-color="#1c2d4f"}
+
+## System prompt: dando um papel
+
+- O **system prompt** define quem o Claude é e como deve responder
+- Separado das mensagens do usuário — vale para a conversa toda
+
+. . .
+
+```python
+resp = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=1024,
+    system="Você é um economista. Responda em pt-BR, tom técnico e objetivo.",
+    messages=[
+        {"role": "user", "content": "O que é o Boletim Focus?"}
+    ],
+)
+```
+
+## Conversas multi-turno
+
+- A API é **stateless**: ela não "lembra" — você reenvia o histórico a cada chamada
+- Alterne os papéis `user` e `assistant`
+
+. . .
+
+```python
+messages = [
+    {"role": "user", "content": "Meu foco é inflação no Brasil."},
+    {"role": "assistant", "content": "Certo — IPCA, núcleos e expectativas."},
+    {"role": "user", "content": "Liste 3 indicadores que devo acompanhar."},
+]
+
+resp = client.messages.create(
+    model="claude-opus-4-8", max_tokens=1024, messages=messages,
+)
+```
+
+## Streaming: resposta em tempo real
+
+- Para respostas longas, **streaming** mostra o texto saindo aos poucos
+- Evita a sensação de "travou" e protege contra timeouts
+
+. . .
+
+```python
+with client.messages.stream(
+    model="claude-opus-4-8",
+    max_tokens=2048,
+    messages=[{"role": "user", "content": "Resuma a política monetária de 2025."}],
+) as stream:
+    for texto in stream.text_stream:
+        print(texto, end="", flush=True)
+```
+
+# 🧱 Controlando a saída {background-color="#1c2d4f"}
+
+## Saída estruturada (JSON)
+
+- Quando você precisa de **dados**, não de prosa: peça um **schema JSON**
+- O `output_config.format` garante uma resposta que valida no seu schema
+
+. . .
+
+```python
+resp = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=1024,
+    messages=[{"role": "user", "content":
+        "Extraia as medianas do Focus: IPCA, Selic, PIB e câmbio para 2026."}],
+    output_config={"format": {"type": "json_schema", "schema": {
+        "type": "object",
+        "properties": {
+            "ipca": {"type": "number"}, "selic": {"type": "number"},
+            "pib": {"type": "number"}, "cambio": {"type": "number"},
+        },
+        "required": ["ipca", "selic", "pib", "cambio"],
+        "additionalProperties": False,
+    }}},
+)
+```
+
+## Avaliar prompts antes de produção
+
+:::: {.columns}
+::: {.column width="58%"}
+- Um bom prompt se **mede**, não se adivinha
+- Monte um **dataset** de casos e rode uma **avaliação** (eval)
+- **Grading por código** (regra objetiva) ou **por modelo** (o Claude julga)
+- Boas práticas: ser **claro e específico**, usar **tags XML**, dar **exemplos**
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+::: {.callout-note}
+Para uma mesa de análise: avalie se o resumo do Focus traz **sempre** as 4 medianas
+antes de confiar o prompt à automação.
+:::
+
+# 🛠️ Recursos do Claude e Tool Use {background-color="#1c2d4f"}
+
+## O que é tool use
+
+- Você **declara ferramentas**; o Claude decide quando chamá-las
+- Ele devolve um pedido (`tool_use`); seu código executa e devolve o `tool_result`
+- O **loop**: pergunta → `tool_use` → resultado → resposta final
+
+. . .
+
+```python
+tools = [{
+    "name": "cotacao_dolar",
+    "description": "Retorna o dólar (BRL) de fechamento de uma data (YYYY-MM-DD).",
+    "input_schema": {
+        "type": "object",
+        "properties": {"data": {"type": "string"}},
+        "required": ["data"],
+    },
+}]
+```
+
+## O loop de ferramentas
+
+```python
+messages = [{"role": "user", "content": "Qual o dólar em 2026-06-15?"}]
+
+resp = client.messages.create(
+    model="claude-opus-4-8", max_tokens=1024, tools=tools, messages=messages,
+)
+
+if resp.stop_reason == "tool_use":
+    bloco = next(b for b in resp.content if b.type == "tool_use")
+    resultado = cotacao_dolar(**bloco.input)            # você executa
+    messages += [
+        {"role": "assistant", "content": resp.content},
+        {"role": "user", "content": [{
+            "type": "tool_result", "tool_use_id": bloco.id,
+            "content": str(resultado),
+        }]},
+    ]
+    resp = client.messages.create(                       # 2ª chamada: resposta final
+        model="claude-opus-4-8", max_tokens=1024, tools=tools, messages=messages,
+    )
+```
+
+## Thinking: raciocínio mais profundo
+
+- O **thinking adaptativo** deixa o Claude raciocinar antes de responder
+- O modelo decide **quanto** pensar; o `effort` ajusta o esforço
+
+. . .
+
+```python
+resp = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=4096,
+    thinking={"type": "adaptive"},
+    output_config={"effort": "high"},   # low | medium | high | max
+    messages=[{"role": "user", "content":
+        "Compare dois cenários de Selic para 2026 e diga os riscos de cada um."}],
+)
+```
+
+## Visão e PDF: ler documentos
+
+- O Claude lê **imagens** e **PDFs** — perfeito para relatórios e atas
+- Anexe um bloco `document` antes do texto da pergunta
+
+. . .
+
+```python
+import base64
+
+pdf = base64.standard_b64encode(open("focus.pdf", "rb").read()).decode()
+
+resp = client.messages.create(
+    model="claude-opus-4-8", max_tokens=1024,
+    messages=[{"role": "user", "content": [
+        {"type": "document", "source": {
+            "type": "base64", "media_type": "application/pdf", "data": pdf}},
+        {"type": "text", "text": "Resuma as 5 mensagens principais deste boletim."},
+    ]}],
+)
+```
+
+## Prompt caching: reusar contexto grande
+
+:::: {.columns}
+::: {.column width="58%"}
+- Documento grande reaproveitado em várias perguntas? **Cacheie** o prefixo
+- Leituras do cache custam **~10%** do preço de entrada
+- É um **casamento de prefixo**: o conteúdo estável vem **antes** do que muda
+:::
+::: {.column width="42%"}
+![](../assets/illus-linechart.svg)
+:::
+::::
+
+. . .
+
+```python
+resp = client.messages.create(
+    model="claude-opus-4-8", max_tokens=1024,
+    system=[{"type": "text", "text": relatorio_grande,
+             "cache_control": {"type": "ephemeral"}}],
+    messages=[{"role": "user", "content": "Quais foram as revisões do PIB?"}],
+)
+print(resp.usage.cache_read_input_tokens)   # > 0 = acerto de cache
+```
+
+# 🔌 MCP, RAG e workflows {background-color="#1c2d4f"}
+
+## MCP: o "USB-C" das integrações
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Model Context Protocol** padroniza como o Claude acessa ferramentas e dados
+- Um **servidor MCP** expõe *tools*, *resources* e *prompts*
+- Conecte na Messages API com `mcp_servers` + `mcp_toolset`
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+. . .
+
+::: {.callout-note}
+Em vez de programar cada integração na mão, você "pluga" um servidor MCP — por exemplo,
+uma base de cotações ou o repositório de relatórios da casa.
+:::
+
+## RAG: responder com base nos seus documentos
+
+- **RAG** = buscar trechos relevantes e injetá-los no prompt
+- Fluxo: **chunk** (picar) → **embed** (vetorizar) → **buscar** → **responder**
+- Combina busca **lexical** (BM25) e **semântica**; *reranking* afina os resultados
+
+. . .
+
+::: {.callout-tip}
+Para uma equipe: pergunte "qual a metodologia da casa para o PIB?" e o Claude responde
+**com base nos documentos internos**, citando a fonte — em vez de inventar.
+:::
+
+## Workflows vs. agentes
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Workflow**: *você* orquestra os passos — encadeamento, paralelização, roteamento
+- **Agente**: o *modelo* decide a trajetória, usando ferramentas livremente
+- Regra de ouro: **comece simples**; só vire agente quando a tarefa for aberta
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: {.callout-note}
+Resumir o Focus toda semana é um **workflow** (passos fixos). "Investigar o que explica a
+revisão do PIB" é mais um **agente** (caminho aberto).
+:::
+
+# 🧩 Juntando tudo {background-color="#1c2d4f"}
+
+## Um mini-script: resumir um relatório macro
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+def resumir(texto_relatorio: str) -> str:
+    resp = client.messages.create(
+        model="claude-opus-4-8",
+        max_tokens=1024,
+        system="Você é um economista. Resuma em pt-BR, sem inventar números.",
+        messages=[{"role": "user", "content":
+            f"Resuma em 5 bullets:\n\n{texto_relatorio}"}],
+    )
+    return resp.content[0].text
+
+print(resumir(open("relatorio.txt").read()))
+```
+
+. . .
+
+::: {.callout-tip}
+É a semente do **projeto Focus**: ler o boletim, resumir e (mais adiante) **automatizar**
+o envio. Aqui só montamos o tijolo da API.
+:::
+
+## Caso de uso por função {.smaller}
+
+| Função | O que a API resolve |
+|---|---|
+| Economista | Resumir atas/relatórios em lote, via PDF |
+| Analista quant | Extrair dados estruturados (JSON) de textos |
+| Risco | Classificar e sintetizar notas com eval de qualidade |
+| Gestor/RI | Gerar rascunhos padronizados de cartas mensais |
+| Time/Dados | Busca corporativa com **RAG** + **MCP** |
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Tudo passa pela **Messages API**: `model` + `max_tokens` + `messages`
+- Controle a saída com **system prompt**, **streaming** e **JSON estruturado**
+- Estenda o Claude com **tool use**, **thinking**, **visão/PDF** e **prompt caching**
+- Integre com **MCP**, fundamente respostas com **RAG**
+- **Comece simples** (workflow) antes de partir para agentes
+
+## Próximos passos
+
+- Pegar uma chave na Console e rodar sua **primeira chamada**
+- Reescrever uma tarefa repetitiva da rotina como um **script**
+- Avançar para **Claude Code 101** (construir) e **Platform 101** (automatizar)
+
+. . .
+
+**Obrigado!** — Análise Macro

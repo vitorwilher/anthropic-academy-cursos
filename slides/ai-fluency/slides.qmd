@@ -1,0 +1,286 @@
+---
+title: "AI Fluency: Frameworks e Fundamentos"
+subtitle: "Trabalhar com IA de forma eficaz, eficiente, ética e segura"
+author: "Vitor Wilher — Análise Macro"
+lang: pt
+format:
+  revealjs:
+    theme: [default, ../theme-am.scss]
+    logo: ../assets/logo-am.png
+    embed-resources: true
+    slide-number: c/t
+    width: 1280
+    height: 720
+    incremental: true
+    code-overflow: wrap
+    transition: slide
+    background-transition: fade
+title-slide-attributes:
+  data-background-image: ../assets/logo-am.png
+  data-background-size: 400px
+  data-background-position: center 12%
+---
+
+# 🧭 O que é fluência em IA {background-color="#1c2d4f"}
+
+## O que você vai aprender
+
+:::: {.columns}
+::: {.column width="58%"}
+- O que significa ser **fluente em IA**
+- Por que precisamos dessa competência
+- Como a **IA generativa** funciona (sem jargão)
+- O **Framework 4D**: Delegation, Description, Discernment, Diligence
+- Aplicar os 4 D's no dia a dia de economia e finanças
+:::
+::: {.column width="42%"}
+![](../assets/illus-chat.svg)
+:::
+::::
+
+::: notes
+Material baseado no curso "AI Fluency: Framework & Foundations" da Anthropic Academy,
+criado pelos professores Rick Dakan e Joseph Feller com a Anthropic. Exemplos voltados ao
+público da Análise Macro (economistas, analistas, profissionais de finanças).
+:::
+
+## Fluência em IA, em uma frase
+
+:::: {.columns}
+::: {.column width="58%"}
+> Capacidade de trabalhar com sistemas de IA de forma **eficaz, eficiente, ética e segura**.
+
+- **Eficaz** — chegar ao resultado certo
+- **Eficiente** — sem desperdiçar esforço
+- **Ética** — uso responsável e transparente
+- **Segura** — sem expor dados ou decisões a risco
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: {.callout-tip}
+## Analogia para economistas
+Ter um terminal Bloomberg não faz de ninguém um bom analista. **A ferramenta é só
+metade**; a outra metade é a competência de usá-la bem. Com IA é igual.
+:::
+
+## Por que precisamos de fluência em IA
+
+- A IA chegou rápido e **não vem com manual** de boas práticas
+- Usar mal gera **retrabalho, erros e risco** — e uma falsa sensação de produtividade
+- A diferença não está em *ter acesso*, e sim em **como você colabora** com a IA
+
+. . .
+
+::: {.callout-note}
+A fluência é uma **competência treinável**, não um talento inato. O Framework 4D dá o
+vocabulário e os hábitos para desenvolvê-la de forma deliberada.
+:::
+
+# 🤖 Fundamentos da IA generativa {background-color="#1c2d4f"}
+
+## Como a IA generativa funciona (alto nível)
+
+:::: {.columns}
+::: {.column width="58%"}
+- Modelos treinados em enormes volumes de texto **preveem o próximo trecho** mais provável
+- Conversam em **linguagem natural**: você descreve, ela responde
+- O comportamento depende muito do **contexto** que você fornece
+- A mesma pergunta pode gerar **respostas diferentes** (não é uma calculadora)
+:::
+::: {.column width="42%"}
+![](../assets/illus-terminal.svg)
+:::
+::::
+
+::: {.callout-tip}
+Pense menos em "banco de dados que devolve a verdade" e mais em **colaborador que redige
+um rascunho muito bom** — que você ainda precisa revisar.
+:::
+
+## Capacidades e limitações {.smaller}
+
+| A IA é forte em… | …mas atenção a |
+|---|---|
+| Redigir, resumir, traduzir, reescrever | **Alucinações** (inventa fatos com confiança) |
+| Estruturar ideias e código | **Limite de conhecimento** (data de corte) |
+| Explicar conceitos, gerar exemplos | **Viés** herdado dos dados de treino |
+| Acelerar tarefas repetitivas | Não tem acesso a **tudo** (dados privados/ao vivo) |
+
+. . .
+
+::: {.callout-note}
+Conhecer as limitações **antes** de usar é o primeiro passo da fluência — define o que
+faz sentido delegar e o que exige supervisão.
+:::
+
+# 🎯 Delegation — o que delegar {background-color="#1c2d4f"}
+
+## Delegation: decidir se, quando e como
+
+- **Delegation** = definir metas e decidir **o que** entregar à IA e **o que** fica com você
+- Nem toda tarefa deve ser delegada — algumas dependem de julgamento humano
+- Três tipos de consciência antes de delegar:
+
+. . .
+
+1. **Do problema** — qual é, de fato, o objetivo?
+2. **Da plataforma** — esta IA é adequada para esta tarefa?
+3. **Da tarefa** — como dividir o trabalho entre humano e IA?
+
+## Planejar é delegar {.smaller}
+
+:::: {.columns}
+::: {.column width="58%"}
+Planejar um projeto é, no fundo, **quebrá-lo em tarefas delegáveis**.
+
+**Exemplo (relatório macro):**
+
+- **Delego à IA:** resumir atas, montar tabela, rascunhar texto
+- **Mantenho comigo:** escolher a tese, validar números, assinar a conclusão
+:::
+::: {.column width="42%"}
+![](../assets/illus-bars.svg)
+:::
+::::
+
+::: {.callout-tip}
+Delegar bem não é "jogar tudo na IA". É **desenhar a divisão de trabalho** que aproveita a
+máquina sem abrir mão do seu julgamento.
+:::
+
+# 📝 Description — descrever bem {background-color="#1c2d4f"}
+
+## Description: comunicar o que você quer
+
+- **Description** = descrever metas com clareza para obter o comportamento desejado
+- O *prompt* é a sua descrição — quanto melhor, melhor a resposta
+- Uma boa descrição cobre três dimensões:
+
+. . .
+
+- **Produto** — o *quê*: formato, tamanho, tom, idioma
+- **Processo** — o *como*: passos, fontes, restrições
+- **Performance** — o *padrão*: critérios de qualidade e de sucesso
+
+## Anatomia de uma boa descrição {.smaller}
+
+::: {.callout-note}
+## Fraco → Forte
+**Fraco:** "Analise essa série."
+
+**Forte:** "Você é um economista (papel). Anexei o IPCA mensal 2010–2025 (contexto).
+Calcule a média móvel de 12 meses e aponte os 3 maiores picos (processo). Responda em uma
+tabela + um parágrafo de síntese, em pt-BR (produto). Cite só números que estejam nos
+dados (performance)."
+:::
+
+. . .
+
+Técnicas que ajudam: **dar papel e contexto**, **mostrar exemplos** (*few-shot*),
+**decompor** a tarefa e **iterar** o pedido.
+
+# 🔎 Discernment — avaliar a saída {background-color="#1c2d4f"}
+
+## Discernment: julgar com critério
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Discernment** = avaliar criticamente a **utilidade** da resposta
+- A IA soa confiante mesmo quando erra — a confiança não é prova de acerto
+- Avalie nas mesmas três dimensões da descrição:
+
+. . .
+
+- **Produto** — a saída está correta e no formato pedido?
+- **Processo** — o raciocínio faz sentido?
+- **Performance** — atende ao padrão de qualidade?
+:::
+::: {.column width="42%"}
+![](../assets/illus-linechart.svg)
+:::
+::::
+
+## Discernimento em economia: confira os números
+
+::: {.callout-important}
+## Regra de ouro
+Quando o Claude redige um **cenário macro** ou cita uma projeção, **verifique cada número**
+contra a fonte. Um dado inventado destrói a credibilidade do relatório inteiro.
+:::
+
+. . .
+
+- Peça **a fonte** de cada afirmação
+- Cruze com dados oficiais (BCB, IBGE, relatórios da casa)
+- Trate a primeira resposta como **rascunho**, não como verdade final
+
+## O loop Description ↔ Discernment
+
+- A colaboração com IA é um **ciclo**, não um único disparo
+- **Descrevo** → a IA responde → **avalio** (discernment) → **redescrevo** com ajustes
+- Cada volta aproxima a saída do que você realmente precisa
+
+. . .
+
+> "Refaça a tabela acrescentando a coluna de fonte de cada número e remova qualquer linha
+> sem fonte verificável."
+
+::: {.callout-tip}
+Description e Discernment se alimentam: avaliar bem te ensina a descrever melhor na
+próxima rodada.
+:::
+
+# 🛡️ Diligence — responsabilidade {background-color="#1c2d4f"}
+
+## Diligence: o humano assina embaixo
+
+- **Diligence** = manter a **responsabilidade ética e a segurança** no uso da IA
+- A IA é uma ferramenta; **a responsabilidade pela decisão continua sua**
+- Três frentes de diligência:
+
+. . .
+
+- **Criação** — usar fontes legítimas, respeitar direitos e privacidade
+- **Transparência** — deixar claro quando e como a IA foi usada
+- **Implantação** — checar impacto antes de publicar ou agir
+
+## Diligência na prática (finanças) {.smaller}
+
+:::: {.columns}
+::: {.column width="58%"}
+- **Dados sensíveis:** não cole informação confidencial de clientes em ferramentas não aprovadas
+- **Decisões com peso:** recomendação de investimento exige revisão humana
+- **Rastro:** registre o que foi gerado por IA e o que foi validado por você
+:::
+::: {.column width="42%"}
+![](../assets/illus-network.svg)
+:::
+::::
+
+::: {.callout-note}
+Diligência não trava o uso da IA — ela **protege a sua assinatura**. Quem responde pelo
+relatório ao cliente ou ao comitê é você, não o modelo.
+:::
+
+# ✅ Conclusão {background-color="#1c2d4f"}
+
+## Mensagens-chave
+
+- Fluência em IA = trabalhar de forma **eficaz, eficiente, ética e segura**
+- **Delegation** — escolha bem o que entregar à IA
+- **Description** — descreva com produto, processo e performance
+- **Discernment** — avalie a saída; **confira os números**
+- **Diligence** — a responsabilidade final é **sua**
+
+## Próximos passos
+
+- Aplicar os **4 D's** a uma tarefa real da sua rotina
+- Praticar o **loop** descrever → avaliar → redescrever
+- Avançar para **Claude 101**, **Claude Code 101** e **Claude Platform 101**
+
+. . .
+
+**Obrigado!** — Análise Macro
